@@ -279,12 +279,16 @@
     leftRim.position.set(-4, 2, -3);
     leftScene.add(leftRim);
 
-    // 4 種 AI 貼圖材質設定
+    // 4 種 AI 貼圖材質設定 (含本機 ComfyUI 生成之真實貼圖)
+    const textureLoader = new THREE.TextureLoader();
+    const realComfyMuscleTex = textureLoader.load('/textures/ai_comfy_muscle.jpg');
+    realComfyMuscleTex.wrapS = THREE.RepeatWrapping;
+    realComfyMuscleTex.wrapT = THREE.RepeatWrapping;
+
     const MAT_ANATOMY = new THREE.MeshStandardMaterial({
-      color: 0x991b1b, // 深紅肌纖維
+      map: realComfyMuscleTex, // 本機 ComfyUI (RTX 5060 Ti) 生成的真實 8K 肌肉紋理
       roughness: 0.35,
-      metalness: 0.2,
-      emissive: 0x450a0a
+      metalness: 0.15
     });
 
     const MAT_THERMAL = new THREE.MeshPhysicalMaterial({
