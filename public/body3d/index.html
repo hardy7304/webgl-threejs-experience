@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D 人體筋膜互動評估系統｜嘉豪師傅 HAOBOXING 柔恢復調理</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    
+    * {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: #050816;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fef3c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gold-btn {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
+    }
+
+    .gold-btn:hover {
+      background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+      box-shadow: 0 6px 25px rgba(245, 158, 11, 0.5);
+    }
+
+    /* 3D 浮動標記點樣式 */
+    .hotspot-marker {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 20;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .hotspot-marker:hover {
+      transform: translate(-50%, -50%) scale(1.3);
+    }
+
+    .hotspot-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.3);
+      animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    }
+
+    .hotspot-dot {
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      background: #fbbf24;
+      box-shadow: 0 0 10px #fbbf24;
+    }
+
+    .hotspot-selected .hotspot-dot {
+      background: #ef4444;
+      box-shadow: 0 0 15px #ef4444;
+    }
+
+    .hotspot-selected .hotspot-ring {
+      background: rgba(239, 68, 68, 0.4);
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.7); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col md:flex-row relative">
+
+  <!-- 左側/上方：品牌導覽與互動說明 -->
+  <div class="w-full md:w-[420px] lg:w-[480px] h-auto md:h-full z-30 flex flex-col justify-between p-6 md:p-8 glass-panel border-r border-white/10 overflow-y-auto">
+    
+    <!-- 頂部品牌 Header -->
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+          <i data-lucide="activity" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-wider text-white">HAOBOXING 嘉豪師傅</h1>
+          <p class="text-xs text-amber-400/90 font-medium">台南傳統整復推拿・3D 筋膜互動評估</p>
+        </div>
+      </div>
+
+      <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 mb-6">
+        <h2 class="text-sm font-bold text-amber-300 flex items-center gap-2 mb-1">
+          <i data-lucide="crosshair" class="w-4 h-4"></i>
+          請在右側 3D 人體模型點選緊繃區域
+        </h2>
+        <p class="text-xs text-gray-400 leading-relaxed">
+          可滑鼠拖曳旋轉、滾輪縮放。點擊標記點即可查看嘉豪師傅的「調理觀點」與「筋膜成因」。
+        </p>
+      </div>
+
+      <!-- 動態調理說明卡片 (點選後更新) -->
+      <div id="detail-card" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 mb-6 transition-all">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <span id="target-category" class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 uppercase tracking-wide">
+              請點選部位
+            </span>
+            <h3 id="target-title" class="text-lg font-bold text-white mt-1">
+              尚未選擇緊繃部位
+            </h3>
+          </div>
+          <button id="add-to-assessment-btn" class="hidden px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            <span>加入評估</span>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs text-gray-300">
+          <div>
+            <span class="text-gray-500 block mb-0.5">常見成因與日常壓力：</span>
+            <p id="target-cause" class="text-gray-400 leading-relaxed">
+              點擊 3D 模型上的金色脈衝點，即可檢視該區域的肌筋膜連鎖反應。
+            </p>
+          </div>
+          <div>
+            <span class="text-amber-400/80 block mb-0.5 font-semibold">嘉豪師傅調理重點：</span>
+            <p id="target-solution" class="text-gray-300 leading-relaxed">
+              結合拳擊運動發力視角與傳統整復手法，不制式硬壓，順應肌肉紋理疏通。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已選痛點清單 -->
+      <div class="mb-4">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">我的評估清單 (<span id="selected-count">0</span>)</span>
+          <button id="clear-selected-btn" class="text-[11px] text-gray-500 hover:text-gray-300">清空</button>
+        </div>
+        <div id="selected-tags" class="flex flex-wrap gap-1.5 min-h-[32px] p-2 rounded-xl bg-slate-950/40 border border-slate-800/60">
+          <span class="text-xs text-gray-600 italic">尚未勾選任何部位</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部行動按鈕 (LINE 串接) -->
+    <div class="pt-4 border-t border-slate-800">
+      <a id="line-booking-btn" href="https://line.me/R/ti/p/@339qipqu" target="_blank" class="w-full py-3.5 rounded-xl gold-btn text-black font-extrabold text-sm flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5">
+        <i data-lucide="message-circle" class="w-4 h-4"></i>
+        <span>帶著 3D 評估直接加 LINE 諮詢</span>
+      </a>
+      <p class="text-[11px] text-center text-gray-500 mt-2">
+        諮詢不收費・台南職人工作室・客製化柔恢復
+      </p>
+    </div>
+
+  </div>
+
+  <!-- 右側/主體：Three.js 3D 人體互動畫布 -->
+  <div class="flex-1 h-full relative bg-radial from-slate-900 to-[#050816] flex items-center justify-center">
+    
+    <!-- 3D WebGL Canvas -->
+    <canvas id="body-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+    <!-- 2D 浮動熱點容器 (由 JS 即時投影到 3D 座標) -->
+    <div id="hotspots-container" class="absolute inset-0 pointer-events-none"></div>
+
+    <!-- 畫面控制小工具 -->
+    <div class="absolute bottom-6 right-6 z-20 flex flex-col gap-2">
+      <button id="view-front" class="p-2.5 rounded-xl glass-panel hover:border-amber-400 text-xs font-semibold text-gray-300 flex items-center gap-1.5 transition-all shadow-lg">
+        <i data-lucide="user" class="w-4 h-4 text-amber-400"></i>
+        <span>正面</span>
+      </button>
+      <button id="view-back" class="p-2.5 rounded-xl glass-panel hover:border-amber-400 text-xs font-semibold text-gray-300 flex items-center gap-1.5 transition-all shadow-lg">
+        <i data-lucide="rotate-ccw" class="w-4 h-4 text-amber-400"></i>
+        <span>背面</span>
+      </button>
+      <button id="view-reset" class="p-2.5 rounded-xl glass-panel hover:border-amber-400 text-xs font-semibold text-gray-300 flex items-center gap-1.5 transition-all shadow-lg">
+        <i data-lucide="maximize-2" class="w-4 h-4 text-amber-400"></i>
+        <span>全視角</span>
+      </button>
+    </div>
+
+    <!-- 旋轉提示 -->
+    <div class="absolute top-6 right-6 z-20 pointer-events-none glass-panel px-3 py-1.5 rounded-full text-xs text-gray-400 flex items-center gap-2 border border-white/5">
+      <i data-lucide="move-3d" class="w-4 h-4 text-amber-400"></i>
+      <span>360° 拖曳旋轉視角</span>
+    </div>
+
+  </div>
+
+  <!-- 3D 邏輯與互動資料庫 -->
+  <script>
+    lucide.createIcons();
+
+    // 1. 筋膜熱點資料庫 (對應人體 3D 局部與調理觀點)
+    const HOTSPOTS_DATA = [
+      {
+        id: "neck-shoulder",
+        name: "肩頸 / 上斜方肌緊繃",
+        category: "上肢與頸椎筋膜鏈",
+        position: new THREE.Vector3(0, 2.1, 0.25),
+        camOffset: new THREE.Vector3(0, 2.1, 2.2),
+        cause: "長期低頭滑手機、電腦螢幕過低，導致頸後肌群代償性緊繃，引發肩頸僵硬與緊箍感。",
+        solution: "放鬆胸鎖乳突肌與深層頸椎枕下肌群，撥開斜方肌筋結，恢復頸部旋轉活動度。"
+      },
+      {
+        id: "rhomboid",
+        name: "膏肓 / 菱形肌與肩胛內側",
+        category: "胸椎與背部深層筋膜",
+        position: new THREE.Vector3(0.45, 1.6, -0.35),
+        camOffset: new THREE.Vector3(0.8, 1.6, -2.2),
+        cause: "圓肩駝背、久坐手臂懸空，肩胛骨長期處於外展位，深層菱形肌被拉扯缺氧產生酸痛點。",
+        solution: "不單純壓痛點，先鬆解前方胸小肌拉力，再順著肩胛內側緣深層撥筋調理。"
+      },
+      {
+        id: "lumbar",
+        name: "下背 / 腰方肌與腰椎疲勞",
+        category: "核心與骨盆支撐鏈",
+        position: new THREE.Vector3(0, 0.7, -0.35),
+        camOffset: new THREE.Vector3(0, 0.7, -2.5),
+        cause: "骨盆前傾/後傾、久坐腰部懸空，或運動時核心未收緊，腰椎承受異常剪力壓力。",
+        solution: "調理腰方肌、豎脊肌及髂腰肌張力平衡，釋放腰椎壓力，舒緩腰部僵直沉重感。"
+      },
+      {
+        id: "gluteal",
+        name: "臀部 / 梨狀肌與坐骨不適",
+        category: "骨盆與下肢旋轉肌群",
+        position: new THREE.Vector3(-0.45, 0.05, -0.4),
+        camOffset: new THREE.Vector3(-0.8, 0.05, -2.4),
+        cause: "翹二郎腿、久坐硬椅子，梨狀肌痙攣壓迫坐骨神經通道，產生臀部深層酸脹感。",
+        solution: "深層放鬆臀中肌與梨狀肌，配合髖關節被動伸展，恢復骨盆旋轉自由度。"
+      },
+      {
+        id: "itband",
+        name: "大腿外側 / 髂脛束 (IT Band)",
+        category: "跑步與下肢側向穩定鏈",
+        position: new THREE.Vector3(0.65, -0.9, 0.1),
+        camOffset: new THREE.Vector3(1.6, -0.9, 2.2),
+        cause: "跑步族、深蹲或拳擊步法移動頻繁，闊筋膜張肌緊繃過度，外側筋膜摩擦膝關節。",
+        solution: "釋放大腿外側張力，調理股外側肌與臀大肌交界筋膜，減輕膝關節牽拉感。"
+      },
+      {
+        id: "calf",
+        name: "小腿 / 腓腸肌與阿基里斯腱",
+        category: "足底與小腿推進鏈",
+        position: new THREE.Vector3(-0.45, -2.1, -0.2),
+        camOffset: new THREE.Vector3(-0.8, -2.1, -2.3),
+        cause: "久站、運動後缺乏拉伸、常穿高跟鞋，小腿肌肉彈性下降，足底與阿基里斯腱緊繃。",
+        solution: "順著小腿三頭肌紋理推拿放鬆，疏通比目魚肌與足底筋膜連結，恢復雙腿輕盈度。"
+      }
+    ];
+
+    // 2. 初始化 Three.js 場景
+    const canvas = document.getElementById('body-canvas');
+    const container = document.getElementById('hotspots-container');
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 0.5, 6.5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 9;
+    controls.minDistance = 2.5;
+    controls.target.set(0, 0, 0);
+
+    // 3. 建立 3D 人體幾何主體 (立體雕塑 + 筋膜發光線框)
+    const bodyGroup = new THREE.Group();
+
+    // 軀幹各部位幾何體
+    const headGeo = new THREE.SphereGeometry(0.42, 24, 24);
+    const neckGeo = new THREE.CylinderGeometry(0.18, 0.22, 0.4, 16);
+    const chestGeo = new THREE.CylinderGeometry(0.75, 0.6, 1.1, 24);
+    const waistGeo = new THREE.CylinderGeometry(0.55, 0.65, 0.7, 24);
+    const hipsGeo = new THREE.CylinderGeometry(0.68, 0.55, 0.8, 24);
+
+    // 四肢幾何體
+    const upperArmGeo = new THREE.CylinderGeometry(0.16, 0.14, 0.9, 16);
+    const lowerArmGeo = new THREE.CylinderGeometry(0.13, 0.11, 0.9, 16);
+    const thighGeo = new THREE.CylinderGeometry(0.24, 0.18, 1.3, 18);
+    const calfGeo = new THREE.CylinderGeometry(0.17, 0.12, 1.3, 18);
+
+    // 材質：半透明高科技人體 + 金色邊緣輝光
+    const bodyMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x0f172a,
+      emissive: 0x1e293b,
+      roughness: 0.2,
+      metalness: 0.8,
+      transmission: 0.6,
+      opacity: 0.85,
+      transparent: true,
+      wireframe: false
+    });
+
+    const wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xf59e0b,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.18
+    });
+
+    function addPart(geo, pos, rot = [0, 0, 0]) {
+      const mesh = new THREE.Mesh(geo, bodyMaterial);
+      const wire = new THREE.Mesh(geo, wireMaterial);
+      mesh.position.set(...pos);
+      mesh.rotation.set(...rot);
+      wire.position.set(...pos);
+      wire.rotation.set(...rot);
+      bodyGroup.add(mesh);
+      bodyGroup.add(wire);
+    }
+
+    // 組裝人體
+    addPart(headGeo, [0, 2.7, 0]);
+    addPart(neckGeo, [0, 2.2, 0]);
+    addPart(chestGeo, [0, 1.5, 0]);
+    addPart(waistGeo, [0, 0.7, 0]);
+    addPart(hipsGeo, [0, 0, 0]);
+
+    // 手臂 (左/右)
+    addPart(upperArmGeo, [-0.95, 1.45, 0], [0, 0, 0.2]);
+    addPart(lowerArmGeo, [-1.2, 0.65, 0], [0, 0, 0.1]);
+    addPart(upperArmGeo, [0.95, 1.45, 0], [0, 0, -0.2]);
+    addPart(lowerArmGeo, [1.2, 0.65, 0], [0, 0, -0.1]);
+
+    // 腿部 (左/右)
+    addPart(thighGeo, [-0.4, -0.9, 0], [0, 0, -0.05]);
+    addPart(calfGeo, [-0.42, -2.1, 0], [0, 0, 0]);
+    addPart(thighGeo, [0.4, -0.9, 0], [0, 0, 0.05]);
+    addPart(calfGeo, [0.42, -2.1, 0], [0, 0, 0]);
+
+    scene.add(bodyGroup);
+
+    // 4. 筋膜光束粒子環繞
+    const ringGeo = new THREE.RingGeometry(1.8, 2.1, 64);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide, transparent: true, opacity: 0.25 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = -2.8;
+    scene.add(ring);
+
+    // 5. 燈光
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambLight);
+
+    const dirLightGold = new THREE.DirectionalLight(0xfbbf24, 2);
+    dirLightGold.position.set(5, 5, 5);
+    scene.add(dirLightGold);
+
+    const dirLightBlue = new THREE.DirectionalLight(0x38bdf8, 1.5);
+    dirLightBlue.position.set(-5, -3, -5);
+    scene.add(dirLightBlue);
+
+    // 6. 生成 2D 浮動熱點標記
+    const hotspotElements = [];
+    let selectedHotspots = new Set();
+    let currentActiveData = null;
+
+    HOTSPOTS_DATA.forEach(data => {
+      const el = document.createElement('div');
+      el.className = 'hotspot-marker';
+      el.innerHTML = `
+        <div class="hotspot-ring"></div>
+        <div class="hotspot-dot"></div>
+      `;
+      el.setAttribute('title', data.name);
+      
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        focusHotspot(data, el);
+      });
+
+      container.appendChild(el);
+      hotspotElements.push({ element: el, data });
+    });
+
+    // 點擊聚焦某個部位
+    function focusHotspot(data, element) {
+      currentActiveData = data;
+
+      // 更新左側卡片
+      document.getElementById('target-category').innerText = data.category;
+      document.getElementById('target-title').innerText = data.name;
+      document.getElementById('target-cause').innerText = data.cause;
+      document.getElementById('target-solution').innerText = data.solution;
+      
+      const addBtn = document.getElementById('add-to-assessment-btn');
+      addBtn.classList.remove('hidden');
+
+      // GSAP 相機特寫動畫
+      gsap.to(camera.position, {
+        x: data.camOffset.x,
+        y: data.camOffset.y,
+        z: data.camOffset.z,
+        duration: 1.2,
+        ease: 'power3.inOut',
+        onUpdate: () => controls.update()
+      });
+
+      gsap.to(controls.target, {
+        x: data.position.x,
+        y: data.position.y,
+        z: data.position.z,
+        duration: 1.2,
+        ease: 'power3.inOut'
+      });
+    }
+
+    // 加入評估清單
+    document.getElementById('add-to-assessment-btn').addEventListener('click', () => {
+      if (!currentActiveData) return;
+      selectedHotspots.add(currentActiveData.name);
+      renderSelectedTags();
+    });
+
+    // 清空清單
+    document.getElementById('clear-selected-btn').addEventListener('click', () => {
+      selectedHotspots.clear();
+      renderSelectedTags();
+    });
+
+    function renderSelectedTags() {
+      const tagsContainer = document.getElementById('selected-tags');
+      const countEl = document.getElementById('selected-count');
+      countEl.innerText = selectedHotspots.size;
+
+      if (selectedHotspots.size === 0) {
+        tagsContainer.innerHTML = '<span class="text-xs text-gray-600 italic">尚未勾選任何部位</span>';
+        updateLineLink();
+        return;
+      }
+
+      tagsContainer.innerHTML = '';
+      selectedHotspots.forEach(name => {
+        const tag = document.createElement('span');
+        tag.className = 'px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[11px] font-semibold flex items-center gap-1 border border-amber-500/30';
+        tag.innerHTML = `
+          <span>${name}</span>
+          <button class="hover:text-red-400 font-bold ml-1" onclick="removeTag('${name}')">×</button>
+        `;
+        tagsContainer.appendChild(tag);
+      });
+
+      updateLineLink();
+    }
+
+    window.removeTag = function(name) {
+      selectedHotspots.delete(name);
+      renderSelectedTags();
+    };
+
+    function updateLineLink() {
+      const btn = document.getElementById('line-booking-btn');
+      if (selectedHotspots.size > 0) {
+        const listText = Array.from(selectedHotspots).join("、");
+        const msg = encodeURIComponent(`您好，我想向嘉豪師傅預約評估！我在 3D 人體模型上標記了緊繃部位：【${listText}】，想了解調理方案與可預約時段。`);
+        // 帶入預填訊息或官方 LINE 連結
+        btn.href = `https://line.me/R/ti/p/@339qipqu?text=${msg}`;
+      } else {
+        btn.href = `https://line.me/R/ti/p/@339qipqu`;
+      }
+    }
+
+    // 視角快捷切換
+    document.getElementById('view-front').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 0, y: 0.5, z: 6.5, duration: 1, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1, ease: 'power2.out' });
+    });
+
+    document.getElementById('view-back').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 0, y: 0.5, z: -6.5, duration: 1, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1, ease: 'power2.out' });
+    });
+
+    document.getElementById('view-reset').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 4.5, y: 2, z: 5, duration: 1.2, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.2, ease: 'power2.out' });
+    });
+
+    // 7. 渲染循環與 3D -> 2D 熱點螢幕座標換算
+    function updateHotspotsPosition() {
+      const halfWidth = canvas.clientWidth / 2;
+      const halfHeight = canvas.clientHeight / 2;
+
+      hotspotElements.forEach(({ element, data }) => {
+        const wp = data.position.clone();
+        wp.project(camera);
+
+        // 檢查是否在相機背面
+        if (wp.z > 1) {
+          element.style.display = 'none';
+          return;
+        }
+
+        element.style.display = 'block';
+        const x = (wp.x * halfWidth) + halfWidth;
+        const y = -(wp.y * halfHeight) + halfHeight;
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      updateHotspotsPosition();
+      ring.rotation.z += 0.003;
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
