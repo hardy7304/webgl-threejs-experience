@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>方案 A：真實紅肌纖維與筋膜解剖評估｜嘉豪師傅 HAOBOXING</title>
+  <title>方案 A：AAA 級真實運動員肌肉體態評估｜嘉豪師傅 HAOBOXING</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Three.js, OrbitControls, OBJLoader -->
+  <!-- Three.js, OrbitControls, MTLLoader, OBJLoader -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -70,7 +71,7 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(239, 68, 68, 0.35);
+      background: rgba(245, 158, 11, 0.35);
       animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
     }
 
@@ -79,15 +80,15 @@
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: #f87171;
-      box-shadow: 0 0 14px #ef4444, 0 0 28px rgba(239, 68, 68, 0.7);
+      background: #f59e0b;
+      box-shadow: 0 0 14px #f59e0b, 0 0 28px rgba(245, 158, 11, 0.8);
       transition: all 0.2s ease;
     }
 
     .hotspot-marker:hover .hotspot-dot {
       transform: scale(1.35);
-      background: #fbbf24;
-      box-shadow: 0 0 18px #f59e0b, 0 0 32px rgba(245, 158, 11, 0.9);
+      background: #38bdf8;
+      box-shadow: 0 0 18px #38bdf8, 0 0 32px rgba(56, 189, 248, 0.9);
     }
 
     @keyframes pulse-ring {
@@ -101,15 +102,15 @@
   <!-- 頂部比較導航 Bar -->
   <div class="fixed top-3 left-1/2 -translate-x-1/2 z-50 glass-panel px-4 py-2 rounded-full flex items-center gap-3 shadow-2xl border border-white/20 text-xs">
     <span class="text-gray-400 font-semibold flex items-center gap-1">
-      <i data-lucide="layers" class="w-3.5 h-3.5 text-red-400"></i>
-      解剖樣式：
+      <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
+      模型規格：
     </span>
-    <a href="/model-a" class="px-2.5 py-1 rounded-full bg-red-600 text-white font-extrabold shadow">方案 A (深層紅肌解剖)</a>
-    <a href="/body3d" class="px-2.5 py-1 rounded-full text-gray-400 hover:text-white transition-colors">幾何骨架</a>
+    <a href="/model-a" class="px-2.5 py-1 rounded-full bg-amber-500 text-black font-extrabold shadow">AAA 級真人肌肉雕塑 (VTR3D)</a>
+    <a href="/body3d" class="px-2.5 py-1 rounded-full text-gray-400 hover:text-white transition-colors">極速原型</a>
     <span class="text-gray-600">|</span>
-    <span class="text-red-400 font-mono-code text-[11px] flex items-center gap-1">
-      <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-      紅肌纖維與肌腱紋理已就緒
+    <span class="text-emerald-400 font-mono-code text-[11px] flex items-center gap-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      4K 肌肉法線貼圖已加載
     </span>
   </div>
 
@@ -117,43 +118,43 @@
   <div class="w-full md:w-[440px] lg:w-[480px] h-[48vh] md:h-full z-30 flex flex-col justify-between p-5 md:p-8 glass-panel border-r border-white/10 overflow-y-auto pt-16 md:pt-16">
     
     <div>
-      <!-- 技術架構標註 (清楚註記：真實肌肉纖維與肌腱著色) -->
-      <div class="mb-4 p-3 rounded-xl bg-slate-900/90 border border-red-500/30">
+      <!-- 技術架構標註 (清楚註記：使用者提供的 AAA 級模型規格) -->
+      <div class="mb-4 p-3 rounded-xl bg-slate-900/90 border border-amber-500/30">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-red-400 font-mono-code flex items-center gap-1">
-            <i data-lucide="activity" class="w-3 h-3"></i>
-            解剖技術實現方式 (TECH NOTE)
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 font-mono-code flex items-center gap-1">
+            <i data-lucide="cpu" class="w-3 h-3"></i>
+            模型實現方式註記 (TECH NOTE)
           </span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-950 text-red-300 font-mono-code">紅肌纖維解剖</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 font-mono-code">VTR3D 寫實肌肉</span>
         </div>
         <p class="text-[11px] text-gray-300 leading-relaxed font-mono-code">
-          • 肌肉肌理：高解析紅肌纖維束紋理 (Muscle Striation Fibers) + 白色肌腱 (Tendons)<br>
-          • 解剖標記：斜方肌、肩胛菱形肌、腰方肌、臀肌、髂脛束筋膜鏈條<br>
-          • 著色管線：Three.js PBR 濕潤有機光澤 (Organic PBR Sheen)
+          • 模型拓撲：Unreal/Unity GameReady 健美運動員人體雕塑<br>
+          • 貼圖管線：4K Diffuse 顏色貼圖 + 4K Normal 肌肉起伏法線貼圖<br>
+          • 核心肌群：胸大肌、前鋸肌、六塊腹肌、斜方肌、三角肌拉絲
         </p>
       </div>
 
       <!-- 品牌標題 -->
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
-          <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+          <i data-lucide="dumbbell" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="text-base md:text-lg font-bold tracking-wider text-white">HAOBOXING 深層肌肉解剖</h1>
-          <p class="text-xs text-red-400 font-medium">真實紅肌纖維・肌腱筋膜張力評估</p>
+          <h1 class="text-base md:text-lg font-bold tracking-wider text-white">HAOBOXING 真人肌肉評估</h1>
+          <p class="text-xs text-amber-400 font-medium">健美體態・肌筋膜痛點與動力鏈調理</p>
         </div>
       </div>
 
       <!-- 肌肉著色模式 -->
       <div class="mb-4 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
         <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-          <i data-lucide="palette" class="w-3.5 h-3.5 text-red-400"></i>
-          解剖肌肉層級
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-amber-400"></i>
+          肌群著色風格
         </span>
         <div class="flex gap-1.5">
-          <button id="mat-red" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600/40 border border-red-500 text-red-200">紅肌纖維</button>
-          <button id="mat-fascia" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">深層筋膜</button>
-          <button id="mat-gold" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">能量力學</button>
+          <button id="mat-real" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/30 border border-amber-400 text-amber-300">真實皮膚肌肉</button>
+          <button id="mat-cyber" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">科技半透</button>
+          <button id="mat-gold" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">黑金雕塑</button>
         </div>
       </div>
 
@@ -167,14 +168,14 @@
       <div id="detail-card" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 mb-4 transition-all">
         <div class="flex justify-between items-start mb-2">
           <div>
-            <span id="target-category" class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-300 uppercase">
-              上斜方肌與頸椎肌群
+            <span id="target-category" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase">
+              斜方肌與肩頸肌群
             </span>
             <h3 id="target-title" class="text-base font-bold text-white mt-1">
-              上斜方肌 (Trapezius) 筋結
+              上斜方肌 (Trapezius) 緊繃結節
             </h3>
           </div>
-          <button id="add-to-assessment-btn" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold flex items-center gap-1 transition-all shadow-md">
+          <button id="add-to-assessment-btn" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold flex items-center gap-1 transition-all shadow-md">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             <span>加入評估</span>
           </button>
@@ -182,15 +183,15 @@
 
         <div class="space-y-2 text-xs text-gray-300">
           <div>
-            <span class="text-red-400 font-semibold block">肌肉受力與緊繃機轉：</span>
+            <span class="text-amber-400 font-semibold block">肌肉受力與緊繃成因：</span>
             <p id="target-cause" class="text-gray-300 leading-relaxed">
-              頭部前傾使上斜方肌纖維長期處於離心等長收縮，局部微循環受阻形成激痛點 (Trigger Points)。
+              重訓臥推、拳擊出拳或久坐打字使前側胸肌過緊，導致後側斜方肌與肩胛提肌長期被動拉伸缺血。
             </p>
           </div>
           <div>
-            <span class="text-amber-400 font-semibold block">嘉豪師傅調理手法：</span>
-            <p id="target-solution" class="text-amber-100/90 leading-relaxed">
-              順應肌纖維走向做深層撥筋，釋放肩胛提肌與胸鎖乳突肌張力，解除肩頸沉重與緊箍感。
+            <span class="text-emerald-400 font-semibold block">嘉豪師傅調理手法：</span>
+            <p id="target-solution" class="text-emerald-100/90 leading-relaxed">
+              順應肌肉纖維走向做深層筋膜撥筋，調理胸小肌與斜方肌張力平衡，恢復肩膀活動角度。
             </p>
           </div>
         </div>
@@ -199,12 +200,12 @@
       <!-- 已選痛點清單 -->
       <div class="mb-4">
         <div class="flex justify-between items-center mb-1.5">
-          <span class="text-xs font-bold text-gray-400 uppercase">已選肌肉診斷 (<span id="selected-count">1</span>)</span>
+          <span class="text-xs font-bold text-gray-400 uppercase">已選診斷項目 (<span id="selected-count">1</span>)</span>
           <button id="clear-selected-btn" class="text-[11px] text-gray-500 hover:text-gray-300">清空</button>
         </div>
         <div id="selected-tags" class="flex flex-wrap gap-1.5 min-h-[30px] p-2 rounded-xl bg-slate-950/50 border border-slate-800">
-          <span class="px-2 py-1 rounded-lg bg-red-500/20 text-red-300 text-[11px] font-semibold flex items-center gap-1 border border-red-500/30">
-            <span>上斜方肌 (Trapezius) 筋結</span>
+          <span class="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[11px] font-semibold flex items-center gap-1 border border-amber-500/30">
+            <span>上斜方肌 (Trapezius) 緊繃結節</span>
           </span>
         </div>
       </div>
@@ -214,18 +215,18 @@
     <div class="pt-3 border-t border-slate-800">
       <a id="line-booking-btn" href="https://line.me/R/ti/p/@339qipqu" target="_blank" class="w-full py-3 rounded-xl gold-btn text-black font-black text-sm flex items-center justify-center gap-2 transition-all">
         <i data-lucide="message-circle" class="w-4 h-4"></i>
-        <span>帶著深層肌肉評估加 LINE 諮詢</span>
+        <span>帶著真實肌肉評估加 LINE 諮詢</span>
       </a>
     </div>
 
   </div>
 
-  <!-- 右側 3D 解剖畫布 -->
+  <!-- 右側 3D 畫布 -->
   <div class="flex-1 h-[52vh] md:h-full relative bg-radial from-slate-900 to-[#030712] flex items-center justify-center overflow-hidden">
     
     <div id="loading-spinner" class="absolute z-40 flex flex-col items-center gap-3 glass-panel p-6 rounded-2xl">
-      <div class="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-      <span class="text-xs text-red-300 font-mono-code font-bold">正在合成深層肌肉纖維紋理...</span>
+      <div class="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs text-amber-300 font-mono-code font-bold">正在加載真實運動員 3D 肌肉雕塑...</span>
     </div>
 
     <canvas id="body-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
@@ -235,129 +236,78 @@
 
     <!-- 視角切換浮動按鈕 -->
     <div class="absolute bottom-5 right-5 z-30 flex gap-2">
-      <button id="view-front" class="px-3 py-1.5 rounded-lg glass-panel hover:border-red-500 text-xs font-bold text-gray-200 shadow-lg">正面肌群</button>
-      <button id="view-back" class="px-3 py-1.5 rounded-lg glass-panel hover:border-red-500 text-xs font-bold text-gray-200 shadow-lg">背面肌群</button>
-      <button id="view-reset" class="px-3 py-1.5 rounded-lg glass-panel hover:border-red-500 text-xs font-bold text-gray-200 shadow-lg">全身總覽</button>
+      <button id="view-front" class="px-3 py-1.5 rounded-lg glass-panel hover:border-amber-400 text-xs font-bold text-gray-200 shadow-lg">正面肌肉</button>
+      <button id="view-back" class="px-3 py-1.5 rounded-lg glass-panel hover:border-amber-400 text-xs font-bold text-gray-200 shadow-lg">背部闊背肌</button>
+      <button id="view-reset" class="px-3 py-1.5 rounded-lg glass-panel hover:border-amber-400 text-xs font-bold text-gray-200 shadow-lg">全身總覽</button>
     </div>
 
     <!-- 提示 -->
-    <div class="absolute top-16 right-4 z-30 glass-panel px-3 py-1.5 rounded-full text-xs text-gray-300 flex items-center gap-1.5 pointer-events-none border border-red-500/20">
-      <i data-lucide="flame" class="w-3.5 h-3.5 text-red-400"></i>
-      <span>真實紅肌纖維與肌腱：點擊紅點即可特寫解剖部位</span>
+    <div class="absolute top-16 right-4 z-30 glass-panel px-3 py-1.5 rounded-full text-xs text-gray-300 flex items-center gap-1.5 pointer-events-none border border-amber-500/20">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+      <span>AAA 級真實人體肌肉雕塑：可 360° 旋轉特寫</span>
     </div>
 
   </div>
 
-  <!-- 3D 核心腳本 (真實肌肉纖維紋理合成器) -->
+  <!-- 3D 核心腳本 (VTR3D 高精度模型與 4K 肌肉貼圖載入) -->
   <script>
     lucide.createIcons();
 
-    // 1. 生成真實肌肉纖維紋理 (Procedural Muscle Striations & Tendons Texture)
-    function createMuscleTexture() {
-      const texCanvas = document.createElement('canvas');
-      texCanvas.width = 1024;
-      texCanvas.height = 1024;
-      const ctx = texCanvas.getContext('2d');
-
-      // 紅褐色肌肉底色
-      const grad = ctx.createLinearGradient(0, 0, 0, 1024);
-      grad.addColorStop(0, '#7f1d1d');
-      grad.addColorStop(0.3, '#991b1b');
-      grad.addColorStop(0.7, '#b91c1c');
-      grad.addColorStop(1, '#6b1111');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1024, 1024);
-
-      // 繪製紅肌纖維條紋 (Muscle Fibers Striations)
-      ctx.lineWidth = 1.5;
-      for (let y = 0; y < 1024; y += 4) {
-        ctx.strokeStyle = (y % 8 === 0) ? 'rgba(239, 68, 68, 0.4)' : 'rgba(69, 10, 10, 0.6)';
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        for (let x = 0; x < 1024; x += 40) {
-          const dy = Math.sin((x + y) * 0.05) * 2;
-          ctx.lineTo(x, y + dy);
-        }
-        ctx.stroke();
-      }
-
-      // 繪製白色肌腱與筋膜薄膜 (White Tendon / Fascia Sheath)
-      for (let i = 0; i < 40; i++) {
-        const x = Math.random() * 1024;
-        const y = Math.random() * 1024;
-        const r = 20 + Math.random() * 80;
-        const fasciaGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
-        fasciaGrad.addColorStop(0, 'rgba(248, 250, 252, 0.55)');
-        fasciaGrad.addColorStop(0.5, 'rgba(241, 245, 249, 0.2)');
-        fasciaGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        ctx.fillStyle = fasciaGrad;
-        ctx.fillRect(x - r, y - r, r * 2, r * 2);
-      }
-
-      const texture = new THREE.CanvasTexture(texCanvas);
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(4, 4);
-      return texture;
-    }
-
-    const muscleTexture = createMuscleTexture();
-
-    // 2. 部位解剖資料
+    // 1. 部位解剖資料
     const ANATOMY_DATA = [
       {
         id: "neck",
         name: "上斜方肌 (Trapezius)",
-        category: "頸背淺層肌群",
+        category: "肩頸與斜方肌群",
         position: new THREE.Vector3(0, 1.45, 0.15),
         camOffset: new THREE.Vector3(0, 1.45, 1.6),
-        cause: "頭部前傾使斜方肌纖維過度伸長與缺血，乳酸堆積形成明顯的緊繃硬結。",
-        solution: "順著斜方肌纖維走向由內向外推順，撥開肩胛骨內上角筋膜黏連。"
+        cause: "重訓或拳擊出拳頻繁，上斜方肌離心收縮過載，形成酸脹硬結。",
+        solution: "由內向外推順肌纖維，撥開肩胛骨內上角筋膜黏連。"
       },
       {
-        id: "rhomboid",
-        name: "菱形肌與胸椎膏肓",
-        category: "肩胛深層菱形肌",
-        position: new THREE.Vector3(0.32, 1.15, -0.2),
-        camOffset: new THREE.Vector3(0.65, 1.15, -1.6),
-        cause: "胸大肌緊縮導致肩胛外展，深層大小菱形肌被動拉扯，引發背部膏肓刺痛感。",
-        solution: "先鬆開前胸胸小肌，再以撥筋手法調理肩胛骨內側緣深層菱形肌肌腱。"
+        id: "pecs",
+        name: "胸大肌與前鋸肌 (Pectoralis)",
+        category: "胸廓與呼吸動力鏈",
+        position: new THREE.Vector3(0.28, 1.1, 0.28),
+        camOffset: new THREE.Vector3(0.65, 1.1, 1.6),
+        cause: "臥推發力過猛或姿勢駝背，胸大肌與胸小肌緊縮，拉扯後背肩胛膏肓痛。",
+        solution: "先撥鬆胸小肌深層筋膜，恢復胸廓擴張度與肩胛活動範圍。"
       },
       {
-        id: "lumbar",
-        name: "腰方肌與豎脊肌 (Lumbar)",
-        category: "腰椎與後核心肌群",
-        position: new THREE.Vector3(0, 0.45, -0.2),
-        camOffset: new THREE.Vector3(0, 0.45, -1.7),
-        cause: "久坐無靠背或骨盆前傾，腰方肌與豎脊肌持續承受剪力，引發下背沉重無力。",
-        solution: "深層放鬆腰方肌及胸腰筋膜，調理骨盆兩側肌張力平衡，釋放腰椎壓力。"
+        id: "abs",
+        name: "腹直肌與核心 (Abs)",
+        category: "前側核心筋膜鏈",
+        position: new THREE.Vector3(0, 0.45, 0.28),
+        camOffset: new THREE.Vector3(0, 0.45, 1.7),
+        cause: "核心發力失衡、骨盆前傾，腹直肌代償收縮，牽連腰椎後側酸脹。",
+        solution: "放鬆髂腰肌與腹壁深層張力，調整骨盆前傾角度。"
       },
       {
-        id: "sacrum",
-        name: "臀中肌與梨狀肌 (Gluteal)",
-        category: "骨盆外旋與穩定肌群",
-        position: new THREE.Vector3(-0.35, 0.05, -0.25),
-        camOffset: new THREE.Vector3(-0.65, 0.05, -1.6),
-        cause: "翹腳或久坐壓迫臀部肌群，梨狀肌緊縮痙攣壓迫坐骨神經，產生酸脹麻感。",
-        solution: "以指壓配合肘部深層撥開臀中肌與梨狀肌緊繃結節，恢復髖關節靈活度。"
+        id: "lats",
+        name: "闊背肌與膏肓 (Latissimus)",
+        category: "背部動力鏈",
+        position: new THREE.Vector3(-0.35, 0.95, -0.25),
+        camOffset: new THREE.Vector3(-0.85, 0.95, -1.7),
+        cause: "背部拉力訓練過載或肩胛外旋，闊背肌上緣與大圓肌黏連。",
+        solution: "沿著闊背肌肌腱外緣進行深層撥筋，釋放肩胛骨內側壓力。"
       },
       {
-        id: "itb",
-        name: "闊筋膜張肌與髂脛束 (ITB)",
-        category: "大腿外側側向穩定筋膜",
-        position: new THREE.Vector3(0.45, -0.5, 0.05),
-        camOffset: new THREE.Vector3(1.1, -0.5, 1.5),
-        cause: "跑步、深蹲或拳擊步法移動頻繁，大腿外側肌群過載，筋膜過緊摩擦膝關節。",
-        solution: "由上而下順著大腿外側筋膜鏈疏通，減輕膝關節側向牽拉壓力。"
+        id: "glute",
+        name: "臀大肌與梨狀肌 (Gluteal)",
+        category: "骨盆與髖關節推進鏈",
+        position: new THREE.Vector3(0.35, 0.05, -0.28),
+        camOffset: new THREE.Vector3(0.75, 0.05, -1.7),
+        cause: "深蹲硬舉過載或久坐壓迫，臀肌緊縮壓迫坐骨神經通道。",
+        solution: "深層調理臀中肌、梨狀肌結節，恢復髖關節旋轉彈性。"
       },
       {
-        id: "calf",
-        name: "腓腸肌與比目魚肌 (Calf)",
-        category: "小腿後側肌群",
-        position: new THREE.Vector3(-0.35, -1.3, -0.15),
-        camOffset: new THREE.Vector3(-0.65, -1.3, -1.5),
-        cause: "運動跳躍後缺乏充分拉伸，小腿後側筋膜彈性下降，足底筋膜緊繃牽連。",
-        solution: "順著小腿三頭肌紋理推拿排酸，疏通阿基里斯腱附著點，恢復下肢輕盈度。"
+        id: "quads",
+        name: "股四頭肌與髂脛束 (Quads)",
+        category: "大腿下肢動力鏈",
+        position: new THREE.Vector3(0.42, -0.7, 0.2),
+        camOffset: new THREE.Vector3(1.1, -0.7, 1.7),
+        cause: "跑步跳躍或重訓深蹲，股外側肌與闊筋膜張肌緊繃牽拉髕骨。",
+        solution: "順著大腿前外側肌群推拿排酸，解除膝關節上方拉扯感。"
       }
     ];
 
@@ -365,19 +315,19 @@
     const quickBtnContainer = document.getElementById('quick-select-btns');
     ANATOMY_DATA.forEach((data, index) => {
       const btn = document.createElement('button');
-      btn.className = `p-2 rounded-lg text-xs font-semibold text-center border transition-all ${index === 0 ? 'bg-red-600/40 border-red-500 text-red-200' : 'bg-slate-800/80 border-slate-700 text-gray-300 hover:border-red-500/50'}`;
-      btn.innerText = data.name.split(' (')[0].split('與')[0];
+      btn.className = `p-2 rounded-lg text-xs font-semibold text-center border transition-all ${index === 0 ? 'bg-amber-500/30 border-amber-400 text-amber-300' : 'bg-slate-800/80 border-slate-700 text-gray-300 hover:border-amber-400/50'}`;
+      btn.innerText = data.name.split(' (')[0];
       btn.addEventListener('click', () => {
         document.querySelectorAll('#quick-select-btns button').forEach(b => {
-          b.className = 'p-2 rounded-lg text-xs font-semibold text-center border bg-slate-800/80 border-slate-700 text-gray-300 hover:border-red-500/50';
+          b.className = 'p-2 rounded-lg text-xs font-semibold text-center border bg-slate-800/80 border-slate-700 text-gray-300 hover:border-amber-400/50';
         });
-        btn.className = 'p-2 rounded-lg text-xs font-semibold text-center border bg-red-600/40 border-red-500 text-red-200';
+        btn.className = 'p-2 rounded-lg text-xs font-semibold text-center border bg-amber-500/30 border-amber-400 text-amber-300';
         selectHotspot(data);
       });
       quickBtnContainer.appendChild(btn);
     });
 
-    // 3. 初始化 Three.js 場景
+    // 2. 初始化 Three.js 場景
     const canvas = document.getElementById('body-canvas');
     const container = document.getElementById('hotspots-container');
     const spinner = document.getElementById('loading-spinner');
@@ -397,56 +347,101 @@
     controls.minDistance = 1.2;
     controls.target.set(0, 0, 0);
 
-    // 燈光配置 (針對紅肌纖維有機光澤配置)
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.95);
+    // 燈光配置 (攝影棚三點光源，完美凸顯肌肉光影線條)
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(ambLight);
 
-    const redRimLight = new THREE.DirectionalLight(0xff4444, 2.5);
-    redRimLight.position.set(4, 5, 5);
-    scene.add(redRimLight);
+    const mainKeyLight = new THREE.DirectionalLight(0xffedd5, 2.6);
+    mainKeyLight.position.set(5, 6, 6);
+    scene.add(mainKeyLight);
 
-    const whiteTendonLight = new THREE.DirectionalLight(0xffffff, 2.8);
-    whiteTendonLight.position.set(-4, 3, 4);
-    scene.add(whiteTendonLight);
+    const cyanFillLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
+    cyanFillLight.position.set(-5, 2, 4);
+    scene.add(cyanFillLight);
 
-    const backRim = new THREE.DirectionalLight(0xf59e0b, 1.8);
-    backRim.position.set(0, -4, -5);
-    scene.add(backRim);
+    const rimLight = new THREE.DirectionalLight(0xf59e0b, 2.2);
+    rimLight.position.set(0, -4, -6);
+    scene.add(rimLight);
 
-    // 4. 紅肌纖維材質定義
-    let meshList = [];
+    // 3. 載入 4K 貼圖
+    const texLoader = new THREE.TextureLoader();
+    const basePath = '/models/vtr3d_body/Obj/obj/';
 
-    const realRedMuscleMat = new THREE.MeshPhysicalMaterial({
-      map: muscleTexture,
-      color: 0xff3b30,
-      emissive: 0x450a0a,
-      roughness: 0.35,
-      metalness: 0.15,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.2
+    const bodyDiffuse = texLoader.load(basePath + 'Std_Skin_Body_diffuse.jpg');
+    const bodyNormal = texLoader.load(basePath + 'Std_Skin_Body_normal.png');
+    const bodyRoughness = texLoader.load(basePath + 'Std_Skin_Body_roughness.jpg');
+
+    const headDiffuse = texLoader.load(basePath + 'Std_Skin_Head_diffuse.jpg');
+    const headNormal = texLoader.load(basePath + 'Std_Skin_Head_normal.png');
+
+    const armDiffuse = texLoader.load(basePath + 'Std_Skin_Arm_diffuse.jpg');
+    const armNormal = texLoader.load(basePath + 'Std_Skin_Arm_normal.png');
+
+    const legDiffuse = texLoader.load(basePath + 'Std_Skin_Leg_diffuse.jpg');
+    const legNormal = texLoader.load(basePath + 'Std_Skin_Leg_normal.png');
+
+    const eyeDiffuse = texLoader.load(basePath + 'Ga_Eye_diffuse.jpg');
+
+    // 4. 定義真實肌肉 PBR 材質
+    const skinBodyMat = new THREE.MeshStandardMaterial({
+      map: bodyDiffuse,
+      normalMap: bodyNormal,
+      roughnessMap: bodyRoughness,
+      roughness: 0.45,
+      metalness: 0.1
     });
 
-    const fasciaTranslucentMat = new THREE.MeshPhysicalMaterial({
-      color: 0x38bdf8,
+    const skinHeadMat = new THREE.MeshStandardMaterial({
+      map: headDiffuse,
+      normalMap: headNormal,
+      roughness: 0.45,
+      metalness: 0.1
+    });
+
+    const skinArmMat = new THREE.MeshStandardMaterial({
+      map: armDiffuse,
+      normalMap: armNormal,
+      roughness: 0.45,
+      metalness: 0.1
+    });
+
+    const skinLegMat = new THREE.MeshStandardMaterial({
+      map: legDiffuse,
+      normalMap: legNormal,
+      roughness: 0.45,
+      metalness: 0.1
+    });
+
+    const eyeMat = new THREE.MeshStandardMaterial({
+      map: eyeDiffuse,
+      roughness: 0.1,
+      metalness: 0.9
+    });
+
+    // 科技材質
+    const cyberMat = new THREE.MeshPhysicalMaterial({
+      color: 0x0284c7,
       emissive: 0x075985,
       roughness: 0.2,
       metalness: 0.8,
-      transmission: 0.65,
-      opacity: 0.88,
+      transmission: 0.6,
+      opacity: 0.9,
       transparent: true
     });
 
-    const energyGoldMat = new THREE.MeshStandardMaterial({
+    const goldMat = new THREE.MeshStandardMaterial({
       color: 0xf59e0b,
-      metalness: 0.85,
-      roughness: 0.28,
+      metalness: 0.9,
+      roughness: 0.25,
       emissive: 0x78350f
     });
 
-    // 5. 載入人體有機肌肉雕塑並套用紅肌纖維紋理
+    let meshList = [];
+
+    // 5. 載入 VTR3D 高精度寫實人體雕塑模型 (obj.obj)
     const objLoader = new THREE.OBJLoader();
     objLoader.load(
-      '/models/realistic_male.obj',
+      '/models/vtr3d_body/Obj/obj.obj',
       (obj) => {
         const box = new THREE.Box3().setFromObject(obj);
         const size = box.getSize(new THREE.Vector3());
@@ -459,10 +454,22 @@
 
         obj.traverse((child) => {
           if (child.isMesh) {
-            if (child.geometry) {
-              child.geometry.computeVertexNormals();
+            child.geometry.computeVertexNormals();
+            const name = child.name.toLowerCase();
+
+            if (name.includes('head') || name.includes('face')) {
+              child.material = skinHeadMat;
+            } else if (name.includes('arm') || name.includes('hand')) {
+              child.material = skinArmMat;
+            } else if (name.includes('leg') || name.includes('foot')) {
+              child.material = skinLegMat;
+            } else if (name.includes('eye')) {
+              child.material = eyeMat;
+            } else {
+              child.material = skinBodyMat;
             }
-            child.material = realRedMuscleMat;
+
+            child.userData.originalMat = child.material;
             meshList.push(child);
           }
         });
@@ -478,26 +485,26 @@
     );
 
     // 6. 材質切換
-    document.getElementById('mat-red').addEventListener('click', () => {
-      meshList.forEach(m => m.material = realRedMuscleMat);
-      setActiveMatBtn('mat-red');
+    document.getElementById('mat-real').addEventListener('click', () => {
+      meshList.forEach(m => m.material = m.userData.originalMat);
+      setActiveMatBtn('mat-real');
     });
 
-    document.getElementById('mat-fascia').addEventListener('click', () => {
-      meshList.forEach(m => m.material = fasciaTranslucentMat);
-      setActiveMatBtn('mat-fascia');
+    document.getElementById('mat-cyber').addEventListener('click', () => {
+      meshList.forEach(m => m.material = cyberMat);
+      setActiveMatBtn('mat-cyber');
     });
 
     document.getElementById('mat-gold').addEventListener('click', () => {
-      meshList.forEach(m => m.material = energyGoldMat);
+      meshList.forEach(m => m.material = goldMat);
       setActiveMatBtn('mat-gold');
     });
 
     function setActiveMatBtn(activeId) {
-      ['mat-red', 'mat-fascia', 'mat-gold'].forEach(id => {
+      ['mat-real', 'mat-cyber', 'mat-gold'].forEach(id => {
         const b = document.getElementById(id);
         if (id === activeId) {
-          b.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600/40 border border-red-500 text-red-200';
+          b.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/30 border border-amber-400 text-amber-300';
         } else {
           b.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700';
         }
@@ -506,7 +513,7 @@
 
     // 7. 生成 3D 熱點標記
     const hotspotElements = [];
-    let selectedHotspots = new Set(["上斜方肌 (Trapezius) 筋結"]);
+    let selectedHotspots = new Set(["上斜方肌 (Trapezius) 緊繃結節"]);
     let currentActiveData = ANATOMY_DATA[0];
 
     ANATOMY_DATA.forEach(data => {
@@ -581,7 +588,7 @@
       tagsContainer.innerHTML = '';
       selectedHotspots.forEach(name => {
         const tag = document.createElement('span');
-        tag.className = 'px-2 py-1 rounded-lg bg-red-500/20 text-red-300 text-[11px] font-semibold flex items-center gap-1 border border-red-500/30';
+        tag.className = 'px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[11px] font-semibold flex items-center gap-1 border border-amber-500/30';
         tag.innerHTML = `
           <span>${name}</span>
           <button class="hover:text-red-400 font-bold ml-1" onclick="removeTag('${name}')">×</button>
@@ -601,7 +608,7 @@
       const btn = document.getElementById('line-booking-btn');
       if (selectedHotspots.size > 0) {
         const listText = Array.from(selectedHotspots).join("、");
-        const msg = encodeURIComponent(`您好，我想向嘉豪師傅預約【深層肌肉筋膜解剖評估】！我在 3D 模型上標記了緊繃肌肉部位：【${listText}】，想了解調理方案與可預約時段。`);
+        const msg = encodeURIComponent(`您好，我想向嘉豪師傅預約【真實肌肉評估】！我在 3D 模型上標記了緊繃部位：【${listText}】，想了解調理方案與可預約時段。`);
         btn.href = `https://line.me/R/ti/p/@339qipqu?text=${msg}`;
       } else {
         btn.href = `https://line.me/R/ti/p/@339qipqu`;
