@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>方案 B：賽博朋克金色全像投影粒子雲｜嘉豪師傅 HAOBOXING</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
+    
+    * {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+      box-sizing: border-box;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: #020617;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+
+    .hologram-glass {
+      background: rgba(10, 15, 30, 0.88);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.08);
+    }
+
+    .gold-glow-btn {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
+    }
+
+    .gold-glow-btn:hover {
+      background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.7);
+    }
+
+    /* 全像標籤 */
+    .holo-label-box {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto !important;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 50;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .holo-tag {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #f59e0b;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fef3c7;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .holo-label-box:hover .holo-tag {
+      border-color: #38bdf8;
+      color: #e0f2fe;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
+      transform: scale(1.08);
+    }
+
+    .holo-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 14px #f59e0b;
+      flex-shrink: 0;
+      animation: pulse-dot 1.8s infinite;
+    }
+
+    .holo-label-box:hover .holo-dot {
+      background: #38bdf8;
+      box-shadow: 0 0 20px #38bdf8;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.4); opacity: 0.5; }
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row relative">
+
+  <!-- 頂部導航 Bar -->
+  <div class="fixed top-3 left-1/2 -translate-x-1/2 z-50 hologram-glass px-4 py-2 rounded-full flex items-center gap-3 shadow-2xl text-xs">
+    <a href="/portal" class="text-amber-400 hover:text-white font-bold flex items-center gap-1">
+      <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+      目錄總覽
+    </a>
+    <span class="text-gray-600">|</span>
+    <span class="text-gray-400 font-semibold">切換比較：</span>
+    <a href="/model-b" class="px-2.5 py-1 rounded-full bg-amber-500 text-black font-extrabold shadow">方案 B (金色全像粒子)</a>
+    <a href="/model-a" class="px-2.5 py-1 rounded-full text-gray-400 hover:text-white transition-colors">方案 A (寫實雕塑)</a>
+    <a href="/body3d" class="px-2.5 py-1 rounded-full text-gray-400 hover:text-white transition-colors">幾何原型</a>
+  </div>
+
+  <!-- 左側控制面板 -->
+  <div class="w-full md:w-[440px] lg:w-[480px] h-[48vh] md:h-full z-30 flex flex-col justify-between p-5 md:p-8 hologram-glass border-r border-amber-500/20 overflow-y-auto pt-16 md:pt-16">
+    
+    <div>
+      <!-- 技術架構標註 (清楚註記：方案 B 粒子雲與能量光束架構) -->
+      <div class="mb-4 p-3.5 rounded-xl bg-slate-950/80 border border-amber-500/30">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 font-mono-code flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3 h-3"></i>
+            技術實現方式註記 (TECH NOTE)
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 font-mono-code font-bold">方案 B</span>
+        </div>
+        <ul class="text-[11px] text-gray-300 space-y-1 font-mono-code leading-relaxed">
+          <li>• <b class="text-white">渲染架構</b>：32,000 顆三維高斯發光粒子雲 (Point Cloud Hologram)</li>
+          <li>• <b class="text-white">動態特效</b>：全像呼吸波動 + 筋膜經絡能量流動光束 (Kinetic Beam)</li>
+          <li>• <b class="text-white">效能特性</b>：GPU 頂點著色器純硬體加速，0 延遲秒開不發燙</li>
+        </ul>
+      </div>
+
+      <!-- 品牌標題 -->
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-base md:text-lg font-bold tracking-wider text-white">HAOBOXING 全像筋膜雲</h1>
+          <p class="text-xs text-amber-400 font-medium">量子能量流・全像人體肌筋膜定位</p>
+        </div>
+      </div>
+
+      <!-- 粒子光譜切換 -->
+      <div class="mb-4 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+        <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-amber-400"></i>
+          全像光譜色彩
+        </span>
+        <div class="flex gap-1.5">
+          <button id="color-gold" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/30 border border-amber-400 text-amber-300">金曜能量</button>
+          <button id="color-cyan" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">矩陣青光</button>
+          <button id="color-violet" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">量子紫焰</button>
+        </div>
+      </div>
+
+      <!-- 快速部位選擇 -->
+      <div class="mb-4">
+        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">點選筋膜熱點 (能量特寫)：</span>
+        <div class="grid grid-cols-3 gap-1.5" id="quick-select-btns"></div>
+      </div>
+
+      <!-- 動態說明卡片 -->
+      <div id="detail-card" class="bg-slate-900/90 border border-amber-500/20 rounded-2xl p-4 mb-4 transition-all shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <span id="target-category" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase">
+              頸部與上斜方肌筋膜鏈
+            </span>
+            <h3 id="target-title" class="text-base font-bold text-white mt-1">
+              上斜方肌 (Trapezius) 能量受阻
+            </h3>
+          </div>
+          <button id="add-to-assessment-btn" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold flex items-center gap-1 transition-all shadow-md">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>加入評估</span>
+          </button>
+        </div>
+
+        <div class="space-y-2 text-xs text-gray-300">
+          <div>
+            <span class="text-amber-400 font-semibold block">全像動力鏈分析：</span>
+            <p id="target-cause" class="text-gray-300 leading-relaxed">
+              頸胸交界處長期處於異常張力，後背筋膜流動受阻，能量波形呈現高頻痙攣聚集。
+            </p>
+          </div>
+          <div>
+            <span class="text-cyan-400 font-semibold block">嘉豪師傅調理手法：</span>
+            <p id="target-solution" class="text-cyan-100/90 leading-relaxed">
+              疏通胸鎖乳突肌與肩胛提肌深層黏連，重新校準頸椎動力平衡，恢復能量順暢流動。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已選痛點清單 -->
+      <div class="mb-4">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-xs font-bold text-gray-400 uppercase">已選全像評估 (<span id="selected-count">1</span>)</span>
+          <button id="clear-selected-btn" class="text-[11px] text-gray-500 hover:text-gray-300">清空</button>
+        </div>
+        <div id="selected-tags" class="flex flex-wrap gap-1.5 min-h-[30px] p-2 rounded-xl bg-slate-950/50 border border-slate-800">
+          <span class="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[11px] font-semibold flex items-center gap-1 border border-amber-500/30">
+            <span>上斜方肌 (Trapezius) 能量受阻</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部行動按鈕 -->
+    <div class="pt-3 border-t border-slate-800">
+      <a id="line-booking-btn" href="https://line.me/R/ti/p/@339qipqu" target="_blank" class="w-full py-3 rounded-xl gold-glow-btn text-black font-black text-sm flex items-center justify-center gap-2 transition-all">
+        <i data-lucide="message-circle" class="w-4 h-4"></i>
+        <span>帶著全像粒子評估加 LINE 諮詢</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- 右側 3D 粒子畫布與 SVG 能量引線 -->
+  <div class="flex-1 h-[52vh] md:h-full relative bg-[#020617] flex items-center justify-center overflow-hidden">
+    
+    <canvas id="body-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+    <!-- SVG 動態全像引線畫布 -->
+    <svg id="guide-lines-svg" class="absolute inset-0 w-full h-full pointer-events-none z-20"></svg>
+
+    <!-- 浮動 3D 名稱標籤容器 -->
+    <div id="labels-container" class="absolute inset-0 pointer-events-none z-30"></div>
+
+    <!-- 視角切換浮動按鈕 -->
+    <div class="absolute bottom-5 right-5 z-30 flex gap-2">
+      <button id="view-front" class="px-3 py-1.5 rounded-lg hologram-glass hover:border-amber-400 text-xs font-bold text-gray-200 shadow-lg">正面全像</button>
+      <button id="view-back" class="px-3 py-1.5 rounded-lg hologram-glass hover:border-amber-400 text-xs font-bold text-gray-200 shadow-lg">背面筋膜</button>
+      <button id="view-reset" class="px-3 py-1.5 rounded-lg hologram-glass hover:border-amber-400 text-xs font-bold text-gray-200 shadow-lg">重設視角</button>
+    </div>
+
+    <!-- 提示 -->
+    <div class="absolute top-16 right-4 z-30 hologram-glass px-3 py-1.5 rounded-full text-xs text-gray-300 flex items-center gap-1.5 pointer-events-none">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400 animate-spin"></i>
+      <span>32,000 顆發光粒子全像雲：可 360° 旋轉特寫</span>
+    </div>
+
+  </div>
+
+  <!-- 3D 核心腳本 (32,000 顆全像人體粒子雲 + 動態能量流) -->
+  <script>
+    lucide.createIcons();
+
+    // 1. 部位資料庫
+    const ANATOMY_DATA = [
+      {
+        id: "neck",
+        name: "上斜方肌 (Trapezius)",
+        category: "頸肩筋膜鏈條",
+        pos: new THREE.Vector3(0, 1.45, 0.12),
+        lineOffset: { x: 95, y: -45 },
+        camOffset: new THREE.Vector3(0, 1.45, 1.8),
+        cause: "低頭與工作過勞使上斜方肌持續處於等長收縮狀態，筋膜張力能量過載。",
+        solution: "疏通枕下肌群與斜方肌深層筋結，使後頸能量線條恢復平滑流暢。"
+      },
+      {
+        id: "pecs",
+        name: "胸大肌 (Pectoralis)",
+        category: "前胸與呼吸動力鏈",
+        pos: new THREE.Vector3(0.32, 1.1, 0.22),
+        lineOffset: { x: 105, y: -30 },
+        camOffset: new THREE.Vector3(0.65, 1.1, 1.7),
+        cause: "重訓推力過度或駝背，前胸筋膜緊縮牽引背部膏肓產生痠痛。",
+        solution: "深層鬆解胸小肌黏連，釋放肩胛骨活動度與前側筋膜張力。"
+      },
+      {
+        id: "rhomboid",
+        name: "肩胛膏肓 (Rhomboids)",
+        category: "後背深層菱形肌",
+        pos: new THREE.Vector3(-0.3, 1.1, -0.22),
+        lineOffset: { x: -105, y: -30 },
+        camOffset: new THREE.Vector3(-0.75, 1.1, -1.8),
+        cause: "圓肩駝背導致菱形肌長期牽拉缺血，產生深層膏肓刺痛點。",
+        solution: "順應肩胛內側緣深層撥筋，調理胸背張力平衡。"
+      },
+      {
+        id: "abs",
+        name: "腹直肌與核心 (Abs)",
+        category: "前側核心筋膜鏈",
+        pos: new THREE.Vector3(0, 0.45, 0.2),
+        lineOffset: { x: -95, y: -20 },
+        camOffset: new THREE.Vector3(0, 0.45, 1.8),
+        cause: "核心發力失衡、骨盆前傾，腹直肌代償收縮，牽連腰椎後側酸脹。",
+        solution: "放鬆髂腰肌與腹壁深層張力，調整骨盆前傾角度。"
+      },
+      {
+        id: "lumbar",
+        name: "腰椎與腰方肌 (Lumbar)",
+        category: "腰椎後支撐鏈",
+        pos: new THREE.Vector3(0, 0.45, -0.2),
+        lineOffset: { x: 95, y: -20 },
+        camOffset: new THREE.Vector3(0, 0.45, -1.8),
+        cause: "久坐無支撐，腰方肌與豎脊肌持續承受剪力引起下背僵硬。",
+        solution: "深層放鬆腰方肌及胸腰筋膜，調理骨盆兩側肌張力平衡。"
+      },
+      {
+        id: "glute",
+        name: "臀大肌與梨狀肌 (Gluteal)",
+        category: "骨盆與髖關節推進鏈",
+        pos: new THREE.Vector3(0.35, -0.05, -0.22),
+        lineOffset: { x: 105, y: 30 },
+        camOffset: new THREE.Vector3(0.8, -0.05, -1.8),
+        cause: "深蹲硬舉過載或久坐壓迫，臀肌緊縮壓迫坐骨神經通道。",
+        solution: "深層調理臀中肌、梨狀肌結節，恢復髖關節旋轉彈性。"
+      },
+      {
+        id: "itb",
+        name: "髂脛束 (IT Band)",
+        category: "大腿側向穩定鏈",
+        pos: new THREE.Vector3(0.45, -0.75, 0.08),
+        lineOffset: { x: 110, y: 35 },
+        camOffset: new THREE.Vector3(1.2, -0.75, 1.8),
+        cause: "跑步跳躍或拳擊步法移動頻繁，大腿外側闊筋膜張肌過緊摩擦膝部。",
+        solution: "由上而下順著大腿外側筋膜鏈疏通，減輕膝關節側向牽拉壓力。"
+      }
+    ];
+
+    // 初始化快速選擇按鈕
+    const quickBtnContainer = document.getElementById('quick-select-btns');
+    ANATOMY_DATA.forEach((data, index) => {
+      const btn = document.createElement('button');
+      btn.className = `p-2 rounded-lg text-xs font-semibold text-center border transition-all ${index === 0 ? 'bg-amber-500/30 border-amber-400 text-amber-300' : 'bg-slate-800/80 border-slate-700 text-gray-300 hover:border-amber-400/50'}`;
+      btn.innerText = data.name.split(' (')[0];
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#quick-select-btns button').forEach(b => {
+          b.className = 'p-2 rounded-lg text-xs font-semibold text-center border bg-slate-800/80 border-slate-700 text-gray-300 hover:border-amber-400/50';
+        });
+        btn.className = 'p-2 rounded-lg text-xs font-semibold text-center border bg-amber-500/30 border-amber-400 text-amber-300';
+        selectHotspot(data);
+      });
+      quickBtnContainer.appendChild(btn);
+    });
+
+    // 2. 初始化 Three.js 場景
+    const canvas = document.getElementById('body-canvas');
+    const svgEl = document.getElementById('guide-lines-svg');
+    const labelsContainer = document.getElementById('labels-container');
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 0.3, 4.5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 7;
+    controls.minDistance = 1.2;
+    controls.target.set(0, 0.1, 0);
+
+    // 3. 建立 32,000 顆全像人體發光粒子雲
+    const PARTICLE_COUNT = 32000;
+    const bodyGeometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const originalPositions = new Float32Array(PARTICLE_COUNT * 3);
+    const sizes = new Float32Array(PARTICLE_COUNT);
+
+    // 生成真實人體比例分佈的 3D 點雲
+    let ptr = 0;
+    function addPoint(x, y, z) {
+      if (ptr >= PARTICLE_COUNT) return;
+      positions[ptr * 3] = x;
+      positions[ptr * 3 + 1] = y;
+      positions[ptr * 3 + 2] = z;
+      originalPositions[ptr * 3] = x;
+      originalPositions[ptr * 3 + 1] = y;
+      originalPositions[ptr * 3 + 2] = z;
+      sizes[ptr] = 2.0 + Math.random() * 2.5;
+      ptr++;
+    }
+
+    // 頭部
+    for (let i = 0; i < 3500; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = 0.28 * Math.cbrt(Math.random());
+      addPoint(
+        r * Math.sin(phi) * Math.cos(theta),
+        1.85 + r * Math.cos(phi) * 1.15,
+        r * Math.sin(phi) * Math.sin(theta)
+      );
+    }
+
+    // 頸部
+    for (let i = 0; i < 1500; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 0.14 * Math.sqrt(Math.random());
+      const h = Math.random() * 0.3;
+      addPoint(r * Math.cos(angle), 1.45 + h, r * Math.sin(angle));
+    }
+
+    // 胸腔與軀幹
+    for (let i = 0; i < 11000; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const h = Math.random() * 1.35; // y from 0.1 to 1.45
+      const y = 0.1 + h;
+      const widthFactor = 0.45 - (h * 0.08) + Math.sin(h * 3.14) * 0.12;
+      const depthFactor = 0.26 - (h * 0.04) + Math.sin(h * 3.14) * 0.06;
+      const r = Math.sqrt(Math.random());
+      addPoint(
+        r * widthFactor * Math.cos(angle),
+        y,
+        r * depthFactor * Math.sin(angle)
+      );
+    }
+
+    // 雙臂
+    for (let i = 0; i < 5000; i++) {
+      const armSide = Math.random() > 0.5 ? 1 : -1;
+      const h = Math.random() * 1.3;
+      const angle = Math.random() * Math.PI * 2;
+      const r = (0.13 - h * 0.03) * Math.sqrt(Math.random());
+      const x = armSide * (0.55 + h * 0.15);
+      const y = 1.35 - h;
+      addPoint(x + r * Math.cos(angle), y, r * Math.sin(angle));
+    }
+
+    // 雙腿
+    for (let i = 0; i < 11000; i++) {
+      const legSide = Math.random() > 0.5 ? 1 : -1;
+      const h = Math.random() * 1.7; // y from -1.6 to 0.1
+      const y = 0.1 - h;
+      const angle = Math.random() * Math.PI * 2;
+      const r = (0.22 - h * 0.07) * Math.sqrt(Math.random());
+      const x = legSide * (0.24 + Math.sin(h * 0.5) * 0.05);
+      addPoint(x + r * Math.cos(angle), y, r * Math.sin(angle));
+    }
+
+    bodyGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    bodyGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    // 發光粒子材質
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0xf59e0b,
+      size: 0.035,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+
+    const bodyPointCloud = new THREE.Points(bodyGeometry, particleMaterial);
+    scene.add(bodyPointCloud);
+
+    // 4. 筋膜能量流動光束 (Kinetic Stream Curve)
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 1.85, 0),
+      new THREE.Vector3(0, 1.45, 0.12),
+      new THREE.Vector3(0.32, 1.1, 0.22),
+      new THREE.Vector3(0, 0.45, 0.2),
+      new THREE.Vector3(0.35, -0.05, -0.22),
+      new THREE.Vector3(0.45, -0.75, 0.08),
+      new THREE.Vector3(0.3, -1.6, 0)
+    ]);
+
+    const beamGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(120));
+    const beamMat = new THREE.LineBasicMaterial({
+      color: 0x38bdf8,
+      linewidth: 2,
+      transparent: true,
+      opacity: 0.75
+    });
+    const energyBeam = new THREE.Line(beamGeo, beamMat);
+    scene.add(energyBeam);
+
+    // 光譜切換事件
+    document.getElementById('color-gold').addEventListener('click', () => {
+      particleMaterial.color.setHex(0xf59e0b);
+      beamMat.color.setHex(0x38bdf8);
+      setActiveColorBtn('color-gold');
+    });
+
+    document.getElementById('color-cyan').addEventListener('click', () => {
+      particleMaterial.color.setHex(0x38bdf8);
+      beamMat.color.setHex(0x10b981);
+      setActiveColorBtn('color-cyan');
+    });
+
+    document.getElementById('color-violet').addEventListener('click', () => {
+      particleMaterial.color.setHex(0xc084fc);
+      beamMat.color.setHex(0xf43f5e);
+      setActiveColorBtn('color-violet');
+    });
+
+    function setActiveColorBtn(activeId) {
+      ['color-gold', 'color-cyan', 'color-violet'].forEach(id => {
+        const b = document.getElementById(id);
+        if (id === activeId) {
+          b.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/30 border border-amber-400 text-amber-300';
+        } else {
+          b.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700';
+        }
+      });
+    }
+
+    // 5. 生成 3D 浮動標籤與指引線
+    const labelElements = [];
+    let selectedHotspots = new Set(["上斜方肌 (Trapezius) 能量受阻"]);
+    let currentActiveData = ANATOMY_DATA[0];
+
+    ANATOMY_DATA.forEach(data => {
+      const el = document.createElement('div');
+      el.className = 'holo-label-box';
+      el.innerHTML = `
+        <div class="holo-dot"></div>
+        <div class="holo-tag">
+          <span>${data.name.split(' (')[0]}</span>
+        </div>
+      `;
+
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectHotspot(data);
+      });
+
+      labelsContainer.appendChild(el);
+      labelElements.push({ element: el, data });
+    });
+
+    // 選擇熱點
+    function selectHotspot(data) {
+      currentActiveData = data;
+
+      document.getElementById('target-category').innerText = data.category;
+      document.getElementById('target-title').innerText = data.name;
+      document.getElementById('target-cause').innerText = data.cause;
+      document.getElementById('target-solution').innerText = data.solution;
+
+      gsap.to(camera.position, {
+        x: data.camOffset.x,
+        y: data.camOffset.y,
+        z: data.camOffset.z,
+        duration: 1.2,
+        ease: 'power3.inOut',
+        onUpdate: () => controls.update()
+      });
+
+      gsap.to(controls.target, {
+        x: data.pos.x,
+        y: data.pos.y,
+        z: data.pos.z,
+        duration: 1.2,
+        ease: 'power3.inOut'
+      });
+    }
+
+    // 加入評估
+    document.getElementById('add-to-assessment-btn').addEventListener('click', () => {
+      if (!currentActiveData) return;
+      selectedHotspots.add(currentActiveData.name);
+      renderSelectedTags();
+    });
+
+    // 清空評估
+    document.getElementById('clear-selected-btn').addEventListener('click', () => {
+      selectedHotspots.clear();
+      renderSelectedTags();
+    });
+
+    function renderSelectedTags() {
+      const tagsContainer = document.getElementById('selected-tags');
+      const countEl = document.getElementById('selected-count');
+      countEl.innerText = selectedHotspots.size;
+
+      if (selectedHotspots.size === 0) {
+        tagsContainer.innerHTML = '<span class="text-xs text-gray-600 italic">尚未勾選任何部位</span>';
+        updateLineLink();
+        return;
+      }
+
+      tagsContainer.innerHTML = '';
+      selectedHotspots.forEach(name => {
+        const tag = document.createElement('span');
+        tag.className = 'px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[11px] font-semibold flex items-center gap-1 border border-amber-500/30';
+        tag.innerHTML = `
+          <span>${name}</span>
+          <button class="hover:text-red-400 font-bold ml-1" onclick="removeTag('${name}')">×</button>
+        `;
+        tagsContainer.appendChild(tag);
+      });
+
+      updateLineLink();
+    }
+
+    window.removeTag = function(name) {
+      selectedHotspots.delete(name);
+      renderSelectedTags();
+    };
+
+    function updateLineLink() {
+      const btn = document.getElementById('line-booking-btn');
+      if (selectedHotspots.size > 0) {
+        const listText = Array.from(selectedHotspots).join("、");
+        const msg = encodeURIComponent(`您好，我想向嘉豪師傅預約【全像筋膜粒子評估】！我在 3D 模型上標記了緊繃能量受阻部位：【${listText}】，想了解調理方案與可預約時段。`);
+        btn.href = `https://line.me/R/ti/p/@339qipqu?text=${msg}`;
+      } else {
+        btn.href = `https://line.me/R/ti/p/@339qipqu`;
+      }
+    }
+
+    // 視角切換
+    document.getElementById('view-front').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 0, y: 0.3, z: 4.5, duration: 1, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0.1, z: 0, duration: 1, ease: 'power2.out' });
+    });
+
+    document.getElementById('view-back').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 0, y: 0.3, z: -4.5, duration: 1, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0.1, z: 0, duration: 1, ease: 'power2.out' });
+    });
+
+    document.getElementById('view-reset').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 3.2, y: 1.5, z: 3.5, duration: 1.2, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0.1, z: 0, duration: 1, ease: 'power2.out' });
+    });
+
+    // 6. 每幀更新 3D 投影與 SVG 指引線
+    function updateLabelsAndLines() {
+      const halfWidth = canvas.clientWidth / 2;
+      const halfHeight = canvas.clientHeight / 2;
+      let svgLinesHtml = '';
+
+      labelElements.forEach(({ element, data }) => {
+        const wp = data.pos.clone();
+        wp.project(camera);
+
+        if (wp.z > 1) {
+          element.style.opacity = '0';
+          return;
+        }
+
+        element.style.opacity = '1';
+        const anchorX = (wp.x * halfWidth) + halfWidth;
+        const anchorY = -(wp.y * halfHeight) + halfHeight;
+
+        const labelX = anchorX + data.lineOffset.x;
+        const labelY = anchorY + data.lineOffset.y;
+
+        element.style.left = `${labelX}px`;
+        element.style.top = `${labelY}px`;
+
+        const midX = anchorX + (data.lineOffset.x * 0.4);
+        svgLinesHtml += `
+          <polyline points="${anchorX},${anchorY} ${midX},${labelY} ${labelX},${labelY}" 
+                    fill="none" 
+                    stroke="rgba(245, 158, 11, 0.45)" 
+                    stroke-width="1.5" 
+                    stroke-dasharray="3,3" />
+          <circle cx="${anchorX}" cy="${anchorY}" r="3.5" fill="#f59e0b" />
+        `;
+      });
+
+      svgEl.innerHTML = svgLinesHtml;
+    }
+
+    // 7. 動畫迴圈 (呼吸脈衝波動)
+    let clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
+
+      // 粒子全像呼吸微動
+      const posArr = bodyGeometry.attributes.position.array;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const ox = originalPositions[i * 3];
+        const oy = originalPositions[i * 3 + 1];
+        const oz = originalPositions[i * 3 + 2];
+        const wave = Math.sin(time * 2.0 + oy * 3.0) * 0.012;
+        posArr[i * 3] = ox + (ox * wave * 2.0);
+        posArr[i * 3 + 2] = oz + (oz * wave * 2.0);
+      }
+      bodyGeometry.attributes.position.needsUpdate = true;
+
+      // 能量光束脈衝
+      beamMat.opacity = 0.5 + Math.sin(time * 3.5) * 0.35;
+
+      controls.update();
+      updateLabelsAndLines();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    });
+  </script>
+</body>
+</html>
