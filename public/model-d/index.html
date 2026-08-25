@@ -285,67 +285,67 @@
   <script>
     lucide.createIcons();
 
-    // 1. 熱點資料庫
+    // 1. 熱點資料庫 (醫學解剖激痛點 Trigger Points 精準校正)
     const HEATMAP_DATA = [
       {
         id: "neck",
-        name: "上斜方肌 (Trapezius)",
+        name: "上斜方肌激痛點 (Trapezius TrP1)",
         level: "★★★★★ (85 PSI 高張力)",
-        pos: new THREE.Vector3(0, 1.25, 0.12),
+        pos: new THREE.Vector3(0.28, 1.25, -0.06), // 後頸肩峰交界處激痛點
         heatColorBefore: 0xef4444, // 鮮紅
         heatColorAfter: 0x0284c7, // 藍
         lineOffset: { x: 95, y: -45 },
-        camOffset: new THREE.Vector3(0, 1.25, 1.6),
-        cause: "頭部前傾使上斜方肌長期缺血性痙攣，局部無菌性發炎，呈現鮮紅高溫熱點。",
-        solution: "深層撥開肩胛提肌與斜方肌筋膜結節，調理後張力降至 15 PSI 恢復健康藍綠光譜。"
+        camOffset: new THREE.Vector3(0.4, 1.25, 1.4),
+        cause: "頭部前傾使上斜方肌肌腹激痛點 (TrP1) 缺血性痙攣，引起後頸放射至太陽穴頭痛。",
+        solution: "精準深層撥開上斜方肌肌纖維激痛結節，調理後張力降至 15 PSI 恢復健康藍綠光譜。"
       },
       {
         id: "rhomboid",
-        name: "膏肓與菱形肌 (Rhomboids)",
+        name: "肩胛膏肓・菱形肌 (Rhomboid TrP)",
         level: "★★★★☆ (72 PSI 牽拉刺痛)",
-        pos: new THREE.Vector3(-0.25, 0.95, -0.22),
+        pos: new THREE.Vector3(-0.24, 0.92, -0.22), // 肩胛骨內側緣膏肓穴
         heatColorBefore: 0xf97316, // 橘紅
         heatColorAfter: 0x10b981, // 綠
         lineOffset: { x: -105, y: -30 },
-        camOffset: new THREE.Vector3(-0.65, 0.95, -1.6),
-        cause: "圓肩駝背導致菱形肌長年受牽拉變薄缺血，熱力呈現橘紅色中高壓張力。",
-        solution: "調理前胸與後背張力平衡，鬆解肩胛內側緣黏連，熱度恢復正常。"
+        camOffset: new THREE.Vector3(-0.65, 0.92, -1.5),
+        cause: "肩胛骨內側緣附著點長期受牽拉缺血，形成膏肓深層刺痛硬結。",
+        solution: "順應肩胛骨內側緣進行深層筋膜撥筋，釋放菱形肌與胸小肌對抗張力。"
       },
       {
         id: "lumbar",
-        name: "腰椎與腰方肌 (Lumbar)",
+        name: "腰方肌與豎脊肌 (QL / Erector TrP)",
         level: "★★★★★ (88 PSI 僵硬下背)",
-        pos: new THREE.Vector3(0, 0.35, -0.2),
+        pos: new THREE.Vector3(0.22, 0.35, -0.22), // 腰椎旁開腰方肌激痛點
         heatColorBefore: 0xef4444,
         heatColorAfter: 0x0284c7,
         lineOffset: { x: 95, y: -20 },
-        camOffset: new THREE.Vector3(0, 0.35, -1.6),
-        cause: "久坐缺乏骨盆支撐，胸腰筋膜承受持續剪切力，豎脊肌呈現高張力鮮紅硬塊。",
-        solution: "深層放鬆腰方肌及胸腰筋膜，骨盆回正後下背熱力全面消退。"
-      },
-      {
-        id: "itb",
-        name: "髂脛束 (IT Band)",
-        level: "★★★★☆ (68 PSI 側向摩擦)",
-        pos: new THREE.Vector3(0.38, -0.7, 0.08),
-        heatColorBefore: 0xeab308, // 黃
-        heatColorAfter: 0x0284c7,
-        lineOffset: { x: 110, y: 35 },
-        camOffset: new THREE.Vector3(1.1, -0.7, 1.6),
-        cause: "跑步或拳擊側向步法過度，大腿外側闊筋膜張肌緊繃摩擦，呈現黃色警戒熱力。",
-        solution: "順著大腿外側筋膜鏈由上而下撥筋疏通，消除膝外側牽拉高壓。"
+        camOffset: new THREE.Vector3(0.55, 0.35, -1.5),
+        cause: "久坐缺乏支撐，腰方肌深層激痛點持續承受高剪力，引發下背轉身僵直酸痛。",
+        solution: "深層鬆解腰方肌與胸腰筋膜，骨盆回正後下背熱力全面消退。"
       },
       {
         id: "glute",
-        name: "梨狀肌深層 (Piriformis)",
+        name: "梨狀肌・坐骨神經通道 (Piriformis TrP)",
         level: "★★★★★ (80 PSI 坐骨壓迫)",
-        pos: new THREE.Vector3(0.3, -0.05, -0.22),
+        pos: new THREE.Vector3(0.32, -0.08, -0.24), // 臀部中外側深層激痛點
         heatColorBefore: 0xef4444,
         heatColorAfter: 0x10b981,
         lineOffset: { x: 105, y: 30 },
-        camOffset: new THREE.Vector3(0.7, -0.05, -1.6),
-        cause: "久坐或深蹲代償，梨狀肌痙攣肥大壓迫坐骨神經通道，呈現深紅熱力點。",
-        solution: "精準深層按壓梨狀肌痛點激痛結節，恢復臀部柔韌彈性。"
+        camOffset: new THREE.Vector3(0.7, -0.08, -1.6),
+        cause: "久坐壓迫臀部深層梨狀肌激痛點，肥大攣縮壓迫坐骨神經通道。",
+        solution: "精準深層按壓梨狀肌與臀中肌激痛結節，恢復髖關節旋轉彈性。"
+      },
+      {
+        id: "itb",
+        name: "闊筋膜張肌與髂脛束 (TFL / ITB)",
+        level: "★★★★☆ (68 PSI 側向摩擦)",
+        pos: new THREE.Vector3(0.38, -0.55, 0.05), // 大腿外側髂脛束中上段
+        heatColorBefore: 0xeab308, // 黃
+        heatColorAfter: 0x0284c7,
+        lineOffset: { x: 110, y: 35 },
+        camOffset: new THREE.Vector3(1.1, -0.55, 1.5),
+        cause: "跑步或拳擊側向步法過度，闊筋膜張肌 (TFL) 緊繃牽拉整條髂脛束摩擦膝外側。",
+        solution: "順著大腿外側筋膜鏈由上而下撥筋疏通，消除膝外側牽拉高壓。"
       }
     ];
 

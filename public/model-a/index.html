@@ -260,35 +260,35 @@
   <script>
     lucide.createIcons();
 
-    // 1. 精準解剖標籤資料庫 (附帶指引線偏移向量)
+    // 1. 精準解剖標籤資料庫 (醫學解剖激痛點 Trigger Points 精準校正)
     const ANATOMY_DATA = [
       {
         id: "neck",
-        name: "上斜方肌 (Trapezius)",
-        category: "肩頸與斜方肌群",
-        pos: new THREE.Vector3(0, 1.25, 0.12),
+        name: "上斜方肌 (Trapezius TrP1)",
+        category: "肩頸與斜方肌激痛點",
+        pos: new THREE.Vector3(0.28, 1.25, -0.06), // 後頸肩峰交界處激痛點
         lineOffset: { x: 90, y: -45 },
-        camOffset: new THREE.Vector3(0, 1.25, 1.6),
-        cause: "重訓或拳擊出拳頻繁，上斜方肌離心收縮過載，形成酸脹硬結。",
+        camOffset: new THREE.Vector3(0.4, 1.25, 1.4),
+        cause: "重訓或拳擊出拳頻繁，上斜方肌肌腹激痛點 (TrP1) 離心收縮過載，形成酸脹硬結。",
         solution: "由內向外推順肌纖維，撥開肩胛骨內上角筋膜黏連。"
       },
       {
         id: "pecs",
-        name: "胸大肌 (Pectoralis)",
+        name: "胸小肌與胸大肌 (Pec Minor)",
         category: "胸廓與呼吸動力鏈",
-        pos: new THREE.Vector3(0.25, 0.95, 0.22),
+        pos: new THREE.Vector3(0.28, 0.98, 0.22), // 鎖骨下喙突處
         lineOffset: { x: 100, y: -30 },
-        camOffset: new THREE.Vector3(0.55, 0.95, 1.5),
-        cause: "臥推發力過猛或姿勢駝背，胸大肌緊縮牽拉背部膏肓產生酸痛。",
+        camOffset: new THREE.Vector3(0.55, 0.98, 1.5),
+        cause: "臥推發力過猛或圓肩駝背，胸小肌緊縮牽拉背部膏肓產生酸痛。",
         solution: "先撥鬆胸小肌深層筋膜，恢復胸廓擴張度與肩胛活動範圍。"
       },
       {
         id: "rhomboid",
-        name: "肩胛膏肓 (Rhomboids)",
+        name: "肩胛膏肓・菱形肌 (Rhomboids)",
         category: "肩胛內側深層動力鏈",
-        pos: new THREE.Vector3(-0.25, 0.95, -0.22),
+        pos: new THREE.Vector3(-0.24, 0.92, -0.22), // 肩胛骨內側緣膏肓穴
         lineOffset: { x: -100, y: -30 },
-        camOffset: new THREE.Vector3(-0.65, 0.95, -1.6),
+        camOffset: new THREE.Vector3(-0.65, 0.92, -1.5),
         cause: "圓肩駝背使菱形肌被動拉長缺血，引發肩胛骨內側深層刺痛點。",
         solution: "順著肩胛骨內側緣進行深層筋膜撥筋，調理胸背張力平衡。"
       },
@@ -304,31 +304,31 @@
       },
       {
         id: "lumbar",
-        name: "腰椎與腰方肌 (Lumbar)",
+        name: "腰方肌與豎脊肌 (Lumbar QL)",
         category: "腰椎核心後支撐鏈",
-        pos: new THREE.Vector3(0, 0.35, -0.2),
+        pos: new THREE.Vector3(0.22, 0.35, -0.22), // 腰椎旁開腰方肌
         lineOffset: { x: 95, y: -20 },
-        camOffset: new THREE.Vector3(0, 0.35, -1.6),
+        camOffset: new THREE.Vector3(0.55, 0.35, -1.5),
         cause: "久坐無靠背或骨盆前傾，腰方肌與豎脊肌持續承受剪力引起下背僵硬。",
         solution: "深層放鬆腰方肌及胸腰筋膜，調理骨盆兩側肌張力平衡。"
       },
       {
         id: "glute",
-        name: "臀大肌與梨狀肌 (Gluteal)",
+        name: "梨狀肌・坐骨通道 (Piriformis)",
         category: "骨盆與髖關節推進鏈",
-        pos: new THREE.Vector3(0.3, -0.05, -0.22),
+        pos: new THREE.Vector3(0.32, -0.08, -0.24), // 臀部深層梨狀肌
         lineOffset: { x: 100, y: 30 },
-        camOffset: new THREE.Vector3(0.7, -0.05, -1.6),
+        camOffset: new THREE.Vector3(0.7, -0.08, -1.6),
         cause: "深蹲硬舉過載或久坐壓迫，臀肌緊縮壓迫坐骨神經通道。",
         solution: "深層調理臀中肌、梨狀肌結節，恢復髖關節旋轉彈性。"
       },
       {
         id: "itb",
-        name: "髂脛束 (IT Band)",
+        name: "闊筋膜張肌與髂脛束 (TFL/ITB)",
         category: "大腿側向穩定鏈",
-        pos: new THREE.Vector3(0.38, -0.7, 0.08),
+        pos: new THREE.Vector3(0.38, -0.55, 0.05), // 大腿外側
         lineOffset: { x: 105, y: 35 },
-        camOffset: new THREE.Vector3(1.1, -0.7, 1.6),
+        camOffset: new THREE.Vector3(1.1, -0.55, 1.5),
         cause: "跑步跳躍或拳擊步法移動頻繁，大腿外側闊筋膜張肌過緊摩擦膝部。",
         solution: "由上而下順著大腿外側筋膜鏈疏通，減輕膝關節側向牽拉壓力。"
       }
