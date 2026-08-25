@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>方案 A：高精細 3D 人體解剖評估｜嘉豪師傅 HAOBOXING</title>
+  <title>方案 A：真實 3D 人體肌肉雕塑解剖評估｜嘉豪師傅 HAOBOXING</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Three.js, OrbitControls, GLTFLoader -->
+  <!-- Three.js, OrbitControls, OBJLoader, GLTFLoader -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -104,12 +105,12 @@
       <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
       樣式比較切換：
     </span>
-    <a href="/model-a" class="px-2.5 py-1 rounded-full bg-cyan-500 text-black font-extrabold shadow">方案 A (高精細解剖)</a>
-    <a href="/body3d" class="px-2.5 py-1 rounded-full text-gray-400 hover:text-white transition-colors">幾何原型</a>
+    <a href="/model-a" class="px-2.5 py-1 rounded-full bg-cyan-500 text-black font-extrabold shadow">方案 A (真實肌肉雕塑)</a>
+    <a href="/body3d" class="px-2.5 py-1 rounded-full text-gray-400 hover:text-white transition-colors">幾何骨架</a>
     <span class="text-gray-600">|</span>
-    <span id="status-indicator" class="text-cyan-400 font-mono-code text-[11px] flex items-center gap-1">
-      <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-      3D 骨骼渲染中
+    <span id="model-status" class="text-emerald-400 font-mono-code text-[11px] flex items-center gap-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      真實人體雕塑已載入
     </span>
   </div>
 
@@ -117,18 +118,19 @@
   <div class="w-full md:w-[440px] lg:w-[480px] h-[48vh] md:h-full z-30 flex flex-col justify-between p-5 md:p-8 glass-panel border-r border-white/10 overflow-y-auto pt-16 md:pt-16">
     
     <div>
-      <!-- 技術架構標註 -->
+      <!-- 技術架構標註 (清楚註記使用真實 3D 雕塑網格) -->
       <div class="mb-4 p-3 rounded-xl bg-slate-900/90 border border-cyan-500/30">
         <div class="flex items-center justify-between mb-1">
           <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400 font-mono-code flex items-center gap-1">
             <i data-lucide="file-box" class="w-3 h-3"></i>
             技術實現方式註記 (TECH NOTE)
           </span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono-code">方案 A 解剖層</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono-code">3D 寫實雕塑</span>
         </div>
         <p class="text-[11px] text-gray-300 leading-relaxed font-mono-code">
-          • 渲染管線：Three.js 深度解剖拓撲 + 骨骼關節系統 (Skeleton & Muscle)<br>
-          • 互動特性：3D 射線精確拾取 + 鏡頭平滑運動 (GSAP 3.12)
+          • 模型格式：高多邊形真人有機肌肉雕塑 (realistic_male.obj / GLB)<br>
+          • 拓撲結構：真實頭部、胸肌、腹肌、二頭肌、下肢肌肉曲面網格<br>
+          • 著色管線：Three.js PBR 物理反射 + 頂點法線平滑 (Smooth Vertex Normals)
         </p>
       </div>
 
@@ -138,21 +140,21 @@
           <i data-lucide="user-check" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="text-base md:text-lg font-bold tracking-wider text-white">HAOBOXING 3D 評估</h1>
-          <p class="text-xs text-cyan-400 font-medium">真實人體解剖・肌筋膜痛點定位系統</p>
+          <h1 class="text-base md:text-lg font-bold tracking-wider text-white">HAOBOXING 3D 肌肉評估</h1>
+          <p class="text-xs text-cyan-400 font-medium">真實人體肌肉線條・肌筋膜痛點定位系統</p>
         </div>
       </div>
 
-      <!-- 3D 材質模式切換 -->
+      <!-- 材質切換 -->
       <div class="mb-4 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
         <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
           <i data-lucide="palette" class="w-3.5 h-3.5 text-cyan-400"></i>
-          3D 著色風格
+          肌肉著色風格
         </span>
         <div class="flex gap-1.5">
-          <button id="mat-cyber" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/30 border border-cyan-400 text-cyan-300">半透科技</button>
-          <button id="mat-gold" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">金屬發光</button>
-          <button id="mat-wire" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">骨骼線框</button>
+          <button id="mat-cyber" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/30 border border-cyan-400 text-cyan-300">半透肌肉</button>
+          <button id="mat-gold" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">金屬雕塑</button>
+          <button id="mat-wire" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-gray-400 hover:text-white border border-slate-700">拓撲網格</button>
         </div>
       </div>
 
@@ -213,7 +215,7 @@
     <div class="pt-3 border-t border-slate-800">
       <a id="line-booking-btn" href="https://line.me/R/ti/p/@339qipqu" target="_blank" class="w-full py-3 rounded-xl gold-btn text-black font-black text-sm flex items-center justify-center gap-2 transition-all">
         <i data-lucide="message-circle" class="w-4 h-4"></i>
-        <span>帶著真實 3D 評估直接加 LINE 諮詢</span>
+        <span>帶著真實肌肉評估加 LINE 諮詢</span>
       </a>
     </div>
 
@@ -222,6 +224,12 @@
   <!-- 右側 3D 畫布 -->
   <div class="flex-1 h-[52vh] md:h-full relative bg-radial from-slate-900 to-[#030712] flex items-center justify-center overflow-hidden">
     
+    <!-- 載入中指示器 -->
+    <div id="loading-spinner" class="absolute z-40 flex flex-col items-center gap-3 glass-panel p-6 rounded-2xl">
+      <div class="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs text-cyan-300 font-mono-code font-bold">正在渲染高精細肌肉雕塑 (OBJ)...</span>
+    </div>
+
     <canvas id="body-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
 
     <!-- 浮動熱點容器 -->
@@ -229,20 +237,20 @@
 
     <!-- 視角切換浮動按鈕 -->
     <div class="absolute bottom-5 right-5 z-30 flex gap-2">
-      <button id="view-front" class="px-3 py-1.5 rounded-lg glass-panel hover:border-cyan-400 text-xs font-bold text-gray-200 shadow-lg">正面</button>
-      <button id="view-back" class="px-3 py-1.5 rounded-lg glass-panel hover:border-cyan-400 text-xs font-bold text-gray-200 shadow-lg">背面</button>
+      <button id="view-front" class="px-3 py-1.5 rounded-lg glass-panel hover:border-cyan-400 text-xs font-bold text-gray-200 shadow-lg">正面肌肉</button>
+      <button id="view-back" class="px-3 py-1.5 rounded-lg glass-panel hover:border-cyan-400 text-xs font-bold text-gray-200 shadow-lg">背面筋膜</button>
       <button id="view-reset" class="px-3 py-1.5 rounded-lg glass-panel hover:border-cyan-400 text-xs font-bold text-gray-200 shadow-lg">重設視角</button>
     </div>
 
     <!-- 提示 -->
     <div class="absolute top-16 right-4 z-30 glass-panel px-3 py-1.5 rounded-full text-xs text-gray-300 flex items-center gap-1.5 pointer-events-none">
       <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
-      <span>3D 解剖人體：可 360° 拖曳並點選各部位</span>
+      <span>真實 3D 肌肉雕塑：可 360° 拖曳並點選各部位</span>
     </div>
 
   </div>
 
-  <!-- 3D 核心腳本 (高穩定渲染管線) -->
+  <!-- 3D 核心腳本 (OBJLoader + Smooth Normals) -->
   <script>
     lucide.createIcons();
 
@@ -252,8 +260,8 @@
         id: "neck",
         name: "頸椎與上斜方肌",
         category: "上肢與頸胸筋膜",
-        position: new THREE.Vector3(0, 2.1, 0.2),
-        camOffset: new THREE.Vector3(0, 2.1, 2.2),
+        position: new THREE.Vector3(0, 1.45, 0.15),
+        camOffset: new THREE.Vector3(0, 1.45, 1.6),
         cause: "長期低頭滑手機、工作視角不良，頸椎深層肌群持續抗阻，引發斜方肌緊縮代償。",
         solution: "放鬆胸鎖乳突肌與枕下肌群，撥開斜方肌筋結，恢復頸部活動度。"
       },
@@ -261,8 +269,8 @@
         id: "rhomboid",
         name: "胸椎與肩胛膏肓",
         category: "胸椎與肩胛動力鏈",
-        position: new THREE.Vector3(0.4, 1.5, -0.3),
-        camOffset: new THREE.Vector3(0.7, 1.5, -2.1),
+        position: new THREE.Vector3(0.32, 1.15, -0.2),
+        camOffset: new THREE.Vector3(0.65, 1.15, -1.6),
         cause: "圓肩駝背導致肩胛骨外旋，背部深層菱形肌長期牽拉缺血，產生深層刺痛點。",
         solution: "先鬆解前方胸小肌緊繃拉力，再順著肩胛內側緣進行深層筋膜撥筋。"
       },
@@ -270,8 +278,8 @@
         id: "lumbar",
         name: "腰椎與腰方肌",
         category: "腰椎與骨盆核心鏈",
-        position: new THREE.Vector3(0, 0.7, -0.3),
-        camOffset: new THREE.Vector3(0, 0.7, -2.3),
+        position: new THREE.Vector3(0, 0.45, -0.2),
+        camOffset: new THREE.Vector3(0, 0.45, -1.7),
         cause: "骨盆前傾或久坐無支撐，腰椎深層豎脊肌與腰方肌持續高張力，引起下背僵硬。",
         solution: "平衡骨盆肌群張力，調理髂腰肌與腰方肌，釋放腰椎壓力。"
       },
@@ -279,8 +287,8 @@
         id: "sacrum",
         name: "臀部與梨狀肌",
         category: "骨盆與髖關節旋轉鏈",
-        position: new THREE.Vector3(-0.45, 0.05, -0.35),
-        camOffset: new THREE.Vector3(-0.8, 0.05, -2.2),
+        position: new THREE.Vector3(-0.35, 0.05, -0.25),
+        camOffset: new THREE.Vector3(-0.65, 0.05, -1.6),
         cause: "久坐硬椅或翹二郎腿，梨狀肌痙攣刺激坐骨神經通道，產生臀部酸脹麻木感。",
         solution: "深層鬆解臀中肌、梨狀肌，配合被動髖關節伸展牽引。"
       },
@@ -288,8 +296,8 @@
         id: "itb",
         name: "大腿與髂脛束",
         category: "下肢側向穩定鏈",
-        position: new THREE.Vector3(0.65, -0.9, 0.1),
-        camOffset: new THREE.Vector3(1.5, -0.9, 2.1),
+        position: new THREE.Vector3(0.45, -0.5, 0.05),
+        camOffset: new THREE.Vector3(1.1, -0.5, 1.5),
         cause: "跑步、深蹲或拳擊步法移動頻繁，大腿外側肌群過載摩擦膝關節。",
         solution: "釋放大腿外側張力，調理股外側肌與臀大肌交界筋膜，舒緩膝部緊繃。"
       },
@@ -297,8 +305,8 @@
         id: "calf",
         name: "小腿與阿基里斯腱",
         category: "足踝與小腿推進鏈",
-        position: new THREE.Vector3(-0.45, -2.1, -0.2),
-        camOffset: new THREE.Vector3(-0.8, -2.1, -2.2),
+        position: new THREE.Vector3(-0.35, -1.3, -0.15),
+        camOffset: new THREE.Vector3(-0.65, -1.3, -1.5),
         cause: "運動跳躍後缺乏充分拉伸，小腿後側筋膜彈性下降，足底筋膜緊繃。",
         solution: "順著小腿三頭肌紋理推拿排酸，疏通跟腱附著點，恢復下肢輕盈度。"
       }
@@ -320,13 +328,14 @@
       quickBtnContainer.appendChild(btn);
     });
 
-    // 2. 初始化 Three.js
+    // 2. 初始化 Three.js 場景
     const canvas = document.getElementById('body-canvas');
     const container = document.getElementById('hotspots-container');
+    const spinner = document.getElementById('loading-spinner');
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-    camera.position.set(0, 0.5, 6.5);
+    camera.position.set(0, 0.3, 4.5);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
@@ -335,43 +344,41 @@
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxDistance = 9;
-    controls.minDistance = 1.8;
+    controls.maxDistance = 7;
+    controls.minDistance = 1.2;
     controls.target.set(0, 0, 0);
 
     // 燈光系統
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.9);
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.95);
     scene.add(ambLight);
 
-    const cyanLight = new THREE.DirectionalLight(0x38bdf8, 3.0);
-    cyanLight.position.set(5, 6, 6);
+    const cyanLight = new THREE.DirectionalLight(0x38bdf8, 3.2);
+    cyanLight.position.set(4, 5, 5);
     scene.add(cyanLight);
 
     const amberLight = new THREE.DirectionalLight(0xf59e0b, 2.2);
-    amberLight.position.set(-5, -4, -5);
+    amberLight.position.set(-4, -3, -4);
     scene.add(amberLight);
 
-    // 3. 高精度解剖人體建構 (結合骨骼脊椎與半透肌肉)
-    const bodyGroup = new THREE.Group();
-    const muscleMeshes = [];
-    const boneMeshes = [];
-    const clickableMeshes = [];
+    // 3. 材質預設 (針對真實肌肉雕塑優化)
+    let loadedObject = null;
+    let meshList = [];
 
-    // 材質系統
     const cyberMat = new THREE.MeshPhysicalMaterial({
       color: 0x0284c7,
       emissive: 0x075985,
-      roughness: 0.15,
-      metalness: 0.8,
-      transmission: 0.45,
-      opacity: 0.88,
-      transparent: true
+      roughness: 0.22,
+      metalness: 0.75,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.1,
+      transparent: true,
+      opacity: 0.92
     });
 
     const goldMat = new THREE.MeshStandardMaterial({
       color: 0xf59e0b,
       metalness: 0.85,
-      roughness: 0.25,
+      roughness: 0.28,
       emissive: 0x78350f
     });
 
@@ -380,92 +387,56 @@
       wireframe: true
     });
 
-    const boneMat = new THREE.MeshStandardMaterial({
-      color: 0xe2e8f0,
-      roughness: 0.4,
-      metalness: 0.2
-    });
+    // 4. 載入真實有機人體雕塑模型 (realistic_male.obj)
+    const objLoader = new THREE.OBJLoader();
+    objLoader.load(
+      '/models/realistic_male.obj',
+      (obj) => {
+        loadedObject = obj;
 
-    // 脊椎骨架
-    for (let i = 0; i < 20; i++) {
-      const vertebra = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.12 - i*0.002, 0.14 - i*0.002, 0.075, 16),
-        boneMat
-      );
-      vertebra.position.set(0, 2.3 - (i * 0.115), -0.05);
-      bodyGroup.add(vertebra);
-      boneMeshes.push(vertebra);
-    }
+        // 計算模型邊界以自動居中並縮放到合適視角
+        const box = new THREE.Box3().setFromObject(obj);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
 
-    // 肋骨籠
-    for (let r = 0; r < 8; r++) {
-      const rib = new THREE.Mesh(
-        new THREE.TorusGeometry(0.52 - r*0.02, 0.028, 8, 24, Math.PI * 1.6),
-        boneMat
-      );
-      rib.rotation.x = Math.PI / 2 + 0.15;
-      rib.rotation.z = Math.PI / 2;
-      rib.position.set(0, 1.85 - (r * 0.12), 0.05);
-      bodyGroup.add(rib);
-      boneMeshes.push(rib);
-    }
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 3.6 / maxDim;
+        obj.scale.set(scale, scale, scale);
+        obj.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
 
-    // 肌肉部位函數
-    function addMuscle(geo, pos, rot = [0, 0, 0], dataId = null) {
-      const mesh = new THREE.Mesh(geo, cyberMat.clone());
-      mesh.position.set(...pos);
-      mesh.rotation.set(...rot);
-      if (dataId) {
-        mesh.userData = { hotspotId: dataId };
-        clickableMeshes.push(mesh);
+        obj.traverse((child) => {
+          if (child.isMesh) {
+            if (child.geometry) {
+              child.geometry.computeVertexNormals(); // 平滑肌肉光澤
+            }
+            child.material = cyberMat;
+            meshList.push(child);
+          }
+        });
+
+        scene.add(obj);
+        spinner.style.display = 'none';
+      },
+      undefined,
+      (err) => {
+        console.error('OBJ 模型載入出錯:', err);
+        spinner.innerHTML = '<span class="text-xs text-red-400">載入出錯</span>';
       }
-      muscleMeshes.push(mesh);
-      bodyGroup.add(mesh);
-      return mesh;
-    }
+    );
 
-    // 頭部與五官輪廓
-    addMuscle(new THREE.SphereGeometry(0.42, 24, 24), [0, 2.7, 0]);
-    addMuscle(new THREE.CylinderGeometry(0.18, 0.22, 0.4, 16), [0, 2.2, 0], [0,0,0], "neck");
-    addMuscle(new THREE.CylinderGeometry(0.72, 0.58, 1.1, 24), [0, 1.5, 0], [0,0,0], "rhomboid");
-    addMuscle(new THREE.CylinderGeometry(0.54, 0.62, 0.7, 24), [0, 0.7, 0], [0,0,0], "lumbar");
-    addMuscle(new THREE.CylinderGeometry(0.66, 0.54, 0.8, 24), [0, 0, 0], [0,0,0], "sacrum");
-
-    // 上肢
-    addMuscle(new THREE.CylinderGeometry(0.16, 0.14, 0.9, 16), [-0.95, 1.45, 0], [0, 0, 0.2]);
-    addMuscle(new THREE.CylinderGeometry(0.13, 0.11, 0.9, 16), [-1.2, 0.65, 0], [0, 0, 0.1]);
-    addMuscle(new THREE.CylinderGeometry(0.16, 0.14, 0.9, 16), [0.95, 1.45, 0], [0, 0, -0.2]);
-    addMuscle(new THREE.CylinderGeometry(0.13, 0.11, 0.9, 16), [1.2, 0.65, 0], [0, 0, -0.1]);
-
-    // 下肢
-    addMuscle(new THREE.CylinderGeometry(0.24, 0.18, 1.3, 18), [-0.4, -0.9, 0], [0, 0, -0.05]);
-    addMuscle(new THREE.CylinderGeometry(0.17, 0.12, 1.3, 18), [-0.42, -2.1, 0], [0, 0, 0], "calf");
-    addMuscle(new THREE.CylinderGeometry(0.24, 0.18, 1.3, 18), [0.4, -0.9, 0], [0, 0, 0.05], "itb");
-    addMuscle(new THREE.CylinderGeometry(0.17, 0.12, 1.3, 18), [0.42, -2.1, 0], [0, 0, 0]);
-
-    // 筋膜環
-    const ringGeo = new THREE.RingGeometry(1.8, 2.1, 64);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = -2.8;
-    bodyGroup.add(ring);
-
-    scene.add(bodyGroup);
-
-    // 4. 材質切換按鈕事件
+    // 5. 材質切換按鈕事件
     document.getElementById('mat-cyber').addEventListener('click', () => {
-      muscleMeshes.forEach(m => m.material = cyberMat.clone());
+      meshList.forEach(m => m.material = cyberMat);
       setActiveMatBtn('mat-cyber');
     });
 
     document.getElementById('mat-gold').addEventListener('click', () => {
-      muscleMeshes.forEach(m => m.material = goldMat.clone());
+      meshList.forEach(m => m.material = goldMat);
       setActiveMatBtn('mat-gold');
     });
 
     document.getElementById('mat-wire').addEventListener('click', () => {
-      muscleMeshes.forEach(m => m.material = wireMat.clone());
+      meshList.forEach(m => m.material = wireMat);
       setActiveMatBtn('mat-wire');
     });
 
@@ -480,7 +451,7 @@
       });
     }
 
-    // 5. 生成 3D 熱點標記
+    // 6. 生成 3D 熱點標記
     const hotspotElements = [];
     let selectedHotspots = new Set(["頸椎與上斜方肌緊繃"]);
     let currentActiveData = ANATOMY_DATA[0];
@@ -501,25 +472,6 @@
 
       container.appendChild(el);
       hotspotElements.push({ element: el, data });
-    });
-
-    // 射線點選
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    canvas.addEventListener('pointerdown', (event) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / canvas.clientWidth) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / canvas.clientHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(clickableMeshes);
-
-      if (intersects.length > 0) {
-        const hitId = intersects[0].object.userData.hotspotId;
-        const target = ANATOMY_DATA.find(h => h.id === hitId);
-        if (target) selectHotspot(target);
-      }
     });
 
     // 選擇熱點
@@ -596,7 +548,7 @@
       const btn = document.getElementById('line-booking-btn');
       if (selectedHotspots.size > 0) {
         const listText = Array.from(selectedHotspots).join("、");
-        const msg = encodeURIComponent(`您好，我想向嘉豪師傅預約【3D 人體解剖評估】！我在 3D 模型上標記了緊繃部位：【${listText}】，想了解調理方案與可預約時段。`);
+        const msg = encodeURIComponent(`您好，我想向嘉豪師傅預約【3D 真實肌肉解剖評估】！我在 3D 模型上標記了緊繃部位：【${listText}】，想了解調理方案與可預約時段。`);
         btn.href = `https://line.me/R/ti/p/@339qipqu?text=${msg}`;
       } else {
         btn.href = `https://line.me/R/ti/p/@339qipqu`;
@@ -605,21 +557,21 @@
 
     // 視角切換
     document.getElementById('view-front').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 0, y: 0.5, z: 6.5, duration: 1, ease: 'power2.out' });
+      gsap.to(camera.position, { x: 0, y: 0.3, z: 4.5, duration: 1, ease: 'power2.out' });
       gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1, ease: 'power2.out' });
     });
 
     document.getElementById('view-back').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 0, y: 0.5, z: -6.5, duration: 1, ease: 'power2.out' });
+      gsap.to(camera.position, { x: 0, y: 0.3, z: -4.5, duration: 1, ease: 'power2.out' });
       gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1, ease: 'power2.out' });
     });
 
     document.getElementById('view-reset').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 4.5, y: 2, z: 5, duration: 1.2, ease: 'power2.out' });
+      gsap.to(camera.position, { x: 3.2, y: 1.5, z: 3.5, duration: 1.2, ease: 'power2.out' });
       gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1, ease: 'power2.out' });
     });
 
-    // 6. 熱點座標投影
+    // 7. 熱點座標投影
     function updateHotspotsPosition() {
       const halfWidth = canvas.clientWidth / 2;
       const halfHeight = canvas.clientHeight / 2;
@@ -651,7 +603,6 @@
       requestAnimationFrame(animate);
       controls.update();
       updateHotspotsPosition();
-      ring.rotation.z += 0.003;
       renderer.render(scene, camera);
     }
     animate();
