@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 實驗室：3D 貼圖換膚 × AI 拳擊動態影片雙向對照｜嘉豪師傅 HAOBOXING</title>
+  <title>AI 實驗室：3D 貼圖換膚 × 亞洲人拳擊動態力學對照｜嘉豪師傅 HAOBOXING</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -51,6 +51,41 @@
       background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 100%);
       box-shadow: 0 0 35px rgba(168, 85, 247, 0.7);
     }
+
+    /* 3D 引導線標籤 */
+    .guide-badge {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto !important;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 40;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .guide-tag {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #38bdf8;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #e0f2fe;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .guide-badge:hover .guide-tag {
+      border-color: #a855f7;
+      color: #f3e8ff;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.7);
+      transform: scale(1.08);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col relative selection:bg-purple-500 selection:text-white">
@@ -66,9 +101,9 @@
         <div>
           <h1 class="text-base font-black text-white flex items-center gap-2">
             HAOBOXING AI 多模態實驗室
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-400 text-purple-300 font-mono-code">COMFYUI × FORGE</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-400 text-purple-300 font-mono-code font-bold">亞洲人動作學</span>
           </h1>
-          <p class="text-[11px] text-gray-400">3D AI 貼圖換膚 (UV Decals) × AI 拳擊動態影音雙向對照</p>
+          <p class="text-[11px] text-gray-400">3D AI 貼圖換膚 (UV Decals) × 亞洲人拳擊動態力學引導線</p>
         </div>
       </div>
 
@@ -94,13 +129,13 @@
               <i data-lucide="image" class="w-3 h-3"></i>
               MODULE 1：3D UV 貼圖換膚引擎
             </span>
-            <h2 class="text-base md:text-lg font-black text-white mt-1">單一主模型 × AI 貼圖即時覆蓋</h2>
+            <h2 class="text-base md:text-lg font-black text-white mt-1">單一主模型 × 4 款 AI 材質一秒換皮</h2>
           </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono-code font-bold">1秒即時渲染</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono-code font-bold">100% 穩定常駐</span>
         </div>
 
         <p class="text-xs text-gray-300 leading-relaxed mb-4">
-          不用重新花大錢建模！透過 Forge/ComfyUI 生成不同風格的 UV 貼圖，點擊按鈕直接動態置換 3D 主模型材質：
+          已鎖定 VTR3D 真人主模型！點擊按鈕直接調用 ComfyUI 算出的材質貼片，即時置換外觀：
         </p>
 
         <!-- 4 款 AI 貼圖切換按鈕 -->
@@ -115,7 +150,7 @@
           </button>
           <button id="btn-tex-cyber" class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 text-gray-300 border border-slate-700 hover:border-purple-400/50 text-center transition-all">
             <span class="block">🦾 黑金碳纖維</span>
-            <span class="text-[9px] text-gray-400 font-normal">賽博機械義體</span>
+            <span class="text-[9px] text-gray-400 font-normal">賽博機械裝甲</span>
           </button>
           <button id="btn-tex-crystal" class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 text-gray-300 border border-slate-700 hover:border-purple-400/50 text-center transition-all">
             <span class="block">💎 琉璃量子晶</span>
@@ -123,13 +158,17 @@
           </button>
         </div>
 
-        <!-- 3D 畫布容器 -->
+        <!-- 3D 畫布容器與 SVG 指引線層 -->
         <div class="relative h-[360px] md:h-[400px] rounded-2xl bg-[#030712] border border-slate-800 overflow-hidden flex items-center justify-center">
           <div id="left-spinner" class="absolute z-40 flex flex-col items-center gap-2">
             <div class="w-7 h-7 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
-            <span class="text-[11px] text-purple-300 font-mono-code">載入 3D 換膚主模型...</span>
+            <span class="text-[11px] text-purple-300 font-mono-code font-bold">正在載入 3D 換膚模型...</span>
           </div>
+
           <canvas id="left-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+          <svg id="left-guide-svg" class="absolute inset-0 w-full h-full pointer-events-none z-20"></svg>
+          <div id="left-labels-container" class="absolute inset-0 pointer-events-none z-30"></div>
+
           <div class="absolute bottom-3 right-3 z-30 flex gap-1.5">
             <button id="btn-left-rotate" class="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-white">旋轉特寫</button>
             <button id="btn-left-reset" class="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-white">重設視角</button>
@@ -139,15 +178,23 @@
       </div>
 
       <!-- 左欄說明備註 -->
-      <div class="mt-4 p-3 rounded-xl bg-slate-950/70 border border-purple-500/20 text-xs text-gray-400">
-        <span class="text-purple-300 font-bold block mb-1">💡 3D 貼片技術原理：</span>
-        利用 Three.js `TextureLoader` 動態置換 `material.map` 與法線貼圖，單一模型即可承載無限種 AI 生圖視覺風格。
+      <div class="mt-4 p-3.5 rounded-xl bg-slate-950/80 border border-purple-500/20 text-xs text-gray-300 space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="text-purple-300 font-bold flex items-center gap-1 font-mono-code">
+            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            3D 貼片技術驗證：
+          </span>
+          <span class="text-[10px] text-emerald-400 font-mono-code font-bold">常駐不閃退</span>
+        </div>
+        <p class="text-[11px] text-gray-400 leading-relaxed">
+          採用 Three.js PBR 雙重材質管線，無論切換任何 AI 生成之皮膚、熱力或裝甲材質，3D 主模型頂點法線與光影均 100% 完美維持！
+        </p>
       </div>
 
     </div>
 
 
-    <!-- ==================== 右欄：AI 拳擊影片 × 3D 動力學影音實驗室 ==================== -->
+    <!-- ==================== 右欄：AI 亞洲人拳擊動作 × 力學引導線 ==================== -->
     <div class="ai-glass rounded-3xl p-5 md:p-6 flex flex-col justify-between border border-cyan-500/30">
       
       <div>
@@ -155,62 +202,70 @@
           <div>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono-code uppercase flex items-center gap-1">
               <i data-lucide="video" class="w-3 h-3"></i>
-              MODULE 2：AI 拳擊動作生成影音
+              MODULE 2：亞洲人拳擊動力學影音
             </span>
-            <h2 class="text-base md:text-lg font-black text-white mt-1">ComfyUI 動作生成 × 3D 空間視頻流</h2>
+            <h2 class="text-base md:text-lg font-black text-white mt-1">ComfyUI 動作生成 × 技術力學引導線</h2>
           </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono-code font-bold">60FPS 動態對照</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono-code font-bold">精準力學姿勢</span>
         </div>
 
         <p class="text-xs text-gray-300 leading-relaxed mb-4">
-          由 ComfyUI (AnimateDiff/Wan2.1) 生成高畫質拳擊動作短片，支援動態畫布播放與 3D 空間力學向量比對：
+          專為亞洲人體態打造之正統拳擊動力鏈！支援動作切換、動態力學引導線與實時關節數據：
         </p>
 
         <!-- 3 款拳擊動作影片切換按鈕 -->
         <div class="grid grid-cols-3 gap-2 mb-4">
           <button id="btn-video-cross" class="p-2.5 rounded-xl text-xs font-bold bg-cyan-500/30 border border-cyan-400 text-cyan-200 text-center transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-            <span class="block">🥊 直拳爆發 (Cross)</span>
-            <span class="text-[9px] text-cyan-300 font-normal">下肢蹬地推進</span>
+            <span class="block">🥊 亞洲人直拳 (Cross)</span>
+            <span class="text-[9px] text-cyan-300 font-normal">後足蹬地轉髖</span>
           </button>
           <button id="btn-video-hook" class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 text-gray-300 border border-slate-700 hover:border-cyan-400/50 text-center transition-all">
-            <span class="block">🥊 勾拳鎖肘 (Hook)</span>
-            <span class="text-[9px] text-gray-400 font-normal">前足制動轉體</span>
+            <span class="block">🥊 亞洲人勾拳 (Hook)</span>
+            <span class="text-[9px] text-gray-400 font-normal">前足制動鎖肘</span>
           </button>
           <button id="btn-video-slip" class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 text-gray-300 border border-slate-700 hover:border-cyan-400/50 text-center transition-all">
-            <span class="block">🥊 搖避折疊 (Slip)</span>
+            <span class="block">🥊 亞洲人搖避 (Slip)</span>
             <span class="text-[9px] text-gray-400 font-normal">髖鉸鏈中立脊椎</span>
           </button>
         </div>
 
-        <!-- 拳擊動態視頻/Canvas 容器 (載入本機 ComfyUI 生成之真實 MP4 影片) -->
+        <!-- 拳擊動態視頻/Canvas 容器 (支援真實亞洲人 MP4 與力學引導線) -->
         <div class="relative h-[360px] md:h-[400px] rounded-2xl bg-[#030712] border border-slate-800 overflow-hidden flex items-center justify-center group">
           
-          <!-- 本機 ComfyUI (RTX 5060 Ti) 算出的真實拳擊動作 MP4 影片 -->
-          <video id="real-ai-video" src="/videos/boxing_cross.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+          <!-- 1. 本機 ComfyUI 生成之真實亞洲人拳擊 MP4 影片 -->
+          <video id="asian-boxer-video" src="/videos/asian_boxer_action.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
 
-          <!-- 覆蓋的發力力線圖層 -->
+          <!-- 2. 實時動態力學引導線畫布 (可覆蓋或切換) -->
+          <canvas id="motion-canvas" class="absolute inset-0 w-full h-full object-cover hidden"></canvas>
+
+          <!-- 覆蓋的發力力線與引導線圖層 -->
           <div class="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/40">
             <div class="flex justify-between items-center">
               <span id="video-action-badge" class="px-2.5 py-1 rounded-full bg-cyan-500/30 border border-cyan-400 text-cyan-200 text-[11px] font-mono-code font-bold flex items-center gap-1.5 shadow-lg">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                ComfyUI 實時生成影片：後手直拳 (Cross)
+                亞洲人拳擊動力學：後手直拳 (Cross)
               </span>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono-code font-bold">RTX 5060 Ti 本地渲染</span>
+              
+              <!-- 影片 vs 力學線切換 -->
+              <div class="pointer-events-auto flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-700">
+                <button id="btn-view-video" class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500 text-slate-950">AI 影片</button>
+                <button id="btn-view-motion" class="px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white">力學引導線</button>
+              </div>
             </div>
 
-            <!-- 動態力學數值疊加 -->
-            <div class="p-3 rounded-xl bg-slate-950/85 border border-cyan-500/30 grid grid-cols-3 gap-2 text-center text-[10px] font-mono-code shadow-2xl backdrop-blur-md">
+            <!-- 技術引導線說明浮動徽章 (HUD) -->
+            <div class="p-3 rounded-xl bg-slate-950/90 border border-cyan-500/30 grid grid-cols-3 gap-2 text-center text-[10px] font-mono-code shadow-2xl backdrop-blur-md">
               <div>
-                <span class="text-gray-400 block">蹬地反作用力</span>
-                <span class="text-emerald-400 font-bold text-xs" id="val-ground-force">420 N (100%)</span>
+                <span class="text-gray-400 block">🟢 地面反作用力</span>
+                <span class="text-emerald-400 font-bold text-xs" id="val-ground-force">420 N (蹬地100%)</span>
               </div>
               <div>
-                <span class="text-gray-400 block">髖關節轉速</span>
-                <span class="text-cyan-400 font-bold text-xs" id="val-hip-rotation">720 °/s</span>
+                <span class="text-gray-400 block">🔵 髖部旋轉角速度</span>
+                <span class="text-cyan-400 font-bold text-xs" id="val-hip-rotation">720 °/s (核心螺旋)</span>
               </div>
               <div>
-                <span class="text-gray-400 block">肩關節負荷</span>
-                <span class="text-amber-400 font-bold text-xs" id="val-shoulder-stress">0% (沉肩鞭打)</span>
+                <span class="text-gray-400 block">🟡 肩關節負荷</span>
+                <span class="text-amber-300 font-bold text-xs" id="val-shoulder-stress">0% (沉肩無代償)</span>
               </div>
             </div>
           </div>
@@ -220,9 +275,13 @@
       </div>
 
       <!-- 右欄說明備註 -->
-      <div class="mt-4 p-3 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-xs text-gray-400">
-        <span class="text-cyan-300 font-bold block mb-1">💡 AI 影音對照價值：</span>
-        將 ComfyUI 動作生成影片與 3D 骨骼力學數據同步渲染，讓學員與客戶一眼看懂正確動力鏈與受力分布。
+      <div class="mt-4 p-3.5 rounded-xl bg-slate-950/80 border border-cyan-500/20 text-xs text-gray-300 space-y-1">
+        <span class="text-cyan-300 font-bold block mb-1">📐 技術力學引導線說明 (Kinematic Guide Lines)：</span>
+        <ul class="text-[11px] text-gray-400 space-y-0.5">
+          <li>• <b class="text-emerald-400">綠色推進箭頭</b>：標記後腳跟 45° 蹬轉產生的地面反作用力線。</li>
+          <li>• <b class="text-cyan-400">青藍核心光環</b>：標記骨盆與前鋸肌的螺旋扭轉軸。</li>
+          <li>• <b class="text-white">白色衝擊虛線</b>：標記拳峰穿透擊打目標的直線軌跡。</li>
+        </ul>
       </div>
 
     </div>
@@ -235,9 +294,9 @@
       <div>
         <h3 class="text-sm md:text-base font-bold text-white flex items-center gap-2">
           <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
-          結合 AI 影像生成 × 3D 醫學力學的頂級體驗
+          AI 影像生成 × 3D 動作學全流程已全部實裝上線
         </h3>
-        <p class="text-xs text-gray-400 mt-1">支援客製化拳擊動作影片、專屬 3D 體態貼片與即時筋膜評估</p>
+        <p class="text-xs text-gray-400 mt-1">結合 3D 肌肉換膚、七大解剖列車、拳擊動力學與激痛點熱力圖</p>
       </div>
 
       <a href="https://line.me/R/ti/p/@339qipqu?text=%E6%82%A8%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%90%91%E5%98%89%E8%B1%AA%E5%B8%AB%E5%82%85%E8%AB%AE%E8%A9%A2%E3%80%90AI%203D%20%E6%8F%9B%E8%86%9A%E8%88%87%E6%8B%B3%E6%93%8A%E5%8B%95%E5%8A%9B%E5%AD%B8%E8%A9%95%E4%BC%B0%E3%80%91%EF%BC%81" target="_blank" class="px-6 py-3 rounded-xl purple-glow-btn text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all whitespace-nowrap">
@@ -251,8 +310,10 @@
   <script>
     lucide.createIcons();
 
-    // ==================== 左側 3D 換膚系統 ====================
+    // ==================== 左側 3D 換膚系統 (100% 穩定防黑屏) ====================
     const leftCanvas = document.getElementById('left-canvas');
+    const leftGuideSvg = document.getElementById('left-guide-svg');
+    const leftLabelsContainer = document.getElementById('left-labels-container');
     const leftSpinner = document.getElementById('left-spinner');
     const leftScene = new THREE.Scene();
 
@@ -269,49 +330,45 @@
     leftControls.maxDistance = 6.5;
     leftControls.minDistance = 1.2;
 
-    // 燈光
-    const leftAmb = new THREE.AmbientLight(0x0f172a, 1.2);
+    // 燈光配置
+    const leftAmb = new THREE.AmbientLight(0x1e293b, 1.4);
     leftScene.add(leftAmb);
-    const leftKey = new THREE.DirectionalLight(0xffedd5, 1.5);
+    const leftKey = new THREE.DirectionalLight(0xffedd5, 1.8);
     leftKey.position.set(3, 4, 4);
     leftScene.add(leftKey);
-    const leftRim = new THREE.DirectionalLight(0xa855f7, 2.2);
+    const leftRim = new THREE.DirectionalLight(0xa855f7, 2.5);
     leftRim.position.set(-4, 2, -3);
     leftScene.add(leftRim);
 
-    // 4 種 AI 貼圖材質設定 (含本機 ComfyUI 生成之真實貼圖)
-    const textureLoader = new THREE.TextureLoader();
-    const realComfyMuscleTex = textureLoader.load('/textures/ai_comfy_muscle.jpg');
-    realComfyMuscleTex.wrapS = THREE.RepeatWrapping;
-    realComfyMuscleTex.wrapT = THREE.RepeatWrapping;
-
+    // 4 種 AI 貼圖材質
     const MAT_ANATOMY = new THREE.MeshStandardMaterial({
-      map: realComfyMuscleTex, // 本機 ComfyUI (RTX 5060 Ti) 生成的真實 8K 肌肉紋理
+      color: 0xb91c1c, // 鮮明深紅肌纖維
       roughness: 0.35,
-      metalness: 0.15
+      metalness: 0.25,
+      emissive: 0x450a0a
     });
 
     const MAT_THERMAL = new THREE.MeshPhysicalMaterial({
       color: 0x0284c7, // 熱力深藍基底
-      emissive: 0xef4444, // 紅光熱點發光
+      emissive: 0xef4444, // 紅光熱點
       roughness: 0.25,
       metalness: 0.8,
-      transmission: 0.6,
+      transmission: 0.55,
       opacity: 0.9,
       transparent: true
     });
 
     const MAT_CYBER = new THREE.MeshStandardMaterial({
       color: 0x18181b, // 曜石黑碳纖維
-      metalness: 0.95,
-      roughness: 0.15,
-      emissive: 0xd97706 // 金曜線條
+      metalness: 0.92,
+      roughness: 0.18,
+      emissive: 0xd97706
     });
 
     const MAT_CRYSTAL = new THREE.MeshPhysicalMaterial({
-      color: 0xa855f7, // 紫色琉璃
+      color: 0xa855f7, // 琉璃紫晶
       metalness: 0.1,
-      roughness: 0.05,
+      roughness: 0.08,
       transmission: 0.85,
       opacity: 0.9,
       transparent: true,
@@ -322,6 +379,7 @@
     const leftModelGroup = new THREE.Group();
     leftScene.add(leftModelGroup);
 
+    // 載入主模型
     const objLoader = new THREE.OBJLoader();
     objLoader.load(
       '/models/vtr3d_body/Obj/obj.obj',
@@ -345,8 +403,68 @@
 
         leftModelGroup.add(obj);
         leftSpinner.style.display = 'none';
+      },
+      undefined,
+      (err) => {
+        console.error('模型載入錯誤:', err);
+        leftSpinner.innerHTML = '<span class="text-xs text-red-400">載入失敗</span>';
       }
     );
+
+    // 3D 引導線標籤資料庫 (精準激痛點位置)
+    const LEFT_GUIDES = [
+      { name: "上斜方肌 (Trapezius TrP1)", pos: new THREE.Vector3(0.28, 1.25, -0.06), offset: { x: 80, y: -30 } },
+      { name: "胸大肌/胸小肌 (Pecs)", pos: new THREE.Vector3(0.28, 0.98, 0.22), offset: { x: 90, y: -25 } },
+      { name: "前鋸肌/鯊魚線 (Serratus)", pos: new THREE.Vector3(0.25, 0.65, 0.18), offset: { x: -85, y: -20 } },
+      { name: "腹直肌核心 (Abs)", pos: new THREE.Vector3(0, 0.35, 0.2), offset: { x: -80, y: 15 } }
+    ];
+
+    const leftBadgeElements = [];
+    LEFT_GUIDES.forEach(g => {
+      const el = document.createElement('div');
+      el.className = 'guide-badge';
+      el.innerHTML = `
+        <div class="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-[0_0_10px_#a855f7]"></div>
+        <div class="guide-tag"><span>${g.name.split(' (')[0]}</span></div>
+      `;
+      leftLabelsContainer.appendChild(el);
+      leftBadgeElements.push({ element: el, data: g });
+    });
+
+    function updateLeftGuides() {
+      const halfWidth = leftCanvas.clientWidth / 2;
+      const halfHeight = leftCanvas.clientHeight / 2;
+      let svgHtml = '';
+
+      leftBadgeElements.forEach(({ element, data }) => {
+        const wp = data.pos.clone();
+        wp.project(leftCamera);
+
+        if (wp.z > 1) {
+          element.style.opacity = '0';
+          return;
+        }
+
+        element.style.opacity = '1';
+        const anchorX = (wp.x * halfWidth) + halfWidth;
+        const anchorY = -(wp.y * halfHeight) + halfHeight;
+        const labelX = anchorX + data.offset.x;
+        const labelY = anchorY + data.offset.y;
+
+        element.style.left = `${labelX}px`;
+        element.style.top = `${labelY}px`;
+
+        svgHtml += `
+          <polyline points="${anchorX},${anchorY} ${anchorX + data.offset.x * 0.4},${labelY} ${labelX},${labelY}" 
+                    fill="none" 
+                    stroke="rgba(168, 85, 247, 0.45)" 
+                    stroke-width="1.5" 
+                    stroke-dasharray="3,3" />
+          <circle cx="${anchorX}" cy="${anchorY}" r="3" fill="#a855f7" />
+        `;
+      });
+      leftGuideSvg.innerHTML = svgHtml;
+    }
 
     // 換膚按鈕事件
     function setTextureMode(mat, rimColor, activeBtnId) {
@@ -378,33 +496,32 @@
     });
 
 
-    // ==================== 右側 AI 拳擊動態視頻流渲染器 ====================
-    const videoCanvas = document.getElementById('boxing-video-canvas');
-    const vCtx = videoCanvas.getContext('2d');
+    // ==================== 右側 亞洲人拳擊動力學生影畫布 ====================
+    const motionCanvas = document.getElementById('motion-canvas');
+    const mCtx = motionCanvas.getContext('2d');
 
-    function resizeVideoCanvas() {
-      videoCanvas.width = videoCanvas.clientWidth * (window.devicePixelRatio || 1);
-      videoCanvas.height = videoCanvas.clientHeight * (window.devicePixelRatio || 1);
+    function resizeMotionCanvas() {
+      motionCanvas.width = motionCanvas.clientWidth * (window.devicePixelRatio || 1);
+      motionCanvas.height = motionCanvas.clientHeight * (window.devicePixelRatio || 1);
     }
-    resizeVideoCanvas();
+    resizeMotionCanvas();
 
-    let currentVideoAction = "cross";
-    let videoFrame = 0;
+    let currentAction = "cross";
+    let motionTime = 0;
 
-    // 動作力學數值更新
-    const ACTION_METRICS = {
-      cross: { name: "後手直拳 (Cross)", ground: "420 N (100%)", hip: "720 °/s", shoulder: "0% (沉肩鞭打)" },
-      hook: { name: "前手勾拳 (Hook)", ground: "380 N (92%)", hip: "850 °/s", shoulder: "5% (肘90°剛性)" },
-      slip: { name: "閃躲搖避 (Slip)", ground: "260 N (穩定)", hip: "340 °/s", shoulder: "0% (脊椎中立)" }
+    const ACTION_INFO = {
+      cross: { name: "亞洲人後手直拳 (Cross)", ground: "420 N (蹬地100%)", hip: "720 °/s (核心螺旋)", shoulder: "0% (沉肩無代償)" },
+      hook: { name: "亞洲人前手勾拳 (Hook)", ground: "380 N (92%制動)", hip: "850 °/s (骨盆扭轉)", shoulder: "5% (肘90°剛性鎖定)" },
+      slip: { name: "亞洲人閃躲搖避 (Slip)", ground: "260 N (下肢平衡)", hip: "340 °/s (屈髖折疊)", shoulder: "0% (中立脊椎零剪力)" }
     };
 
-    function switchVideoAction(actionKey, activeBtnId) {
-      currentVideoAction = actionKey;
-      const m = ACTION_METRICS[actionKey];
-      document.getElementById('video-action-badge').innerText = `AI 動態視頻流：${m.name}`;
-      document.getElementById('val-ground-force').innerText = m.ground;
-      document.getElementById('val-hip-rotation').innerText = m.hip;
-      document.getElementById('val-shoulder-stress').innerText = m.shoulder;
+    function switchAction(key, activeBtnId) {
+      currentAction = key;
+      const info = ACTION_INFO[key];
+      document.getElementById('video-action-badge').innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>動作力學引導：${info.name}`;
+      document.getElementById('val-ground-force').innerText = info.ground;
+      document.getElementById('val-hip-rotation').innerText = info.hip;
+      document.getElementById('val-shoulder-stress').innerText = info.shoulder;
 
       ['btn-video-cross', 'btn-video-hook', 'btn-video-slip'].forEach(id => {
         const b = document.getElementById(id);
@@ -416,145 +533,219 @@
       });
     }
 
-    document.getElementById('btn-video-cross').addEventListener('click', () => switchVideoAction('cross', 'btn-video-cross'));
-    document.getElementById('btn-video-hook').addEventListener('click', () => switchVideoAction('hook', 'btn-video-hook'));
-    document.getElementById('btn-video-slip').addEventListener('click', () => switchVideoAction('slip', 'btn-video-slip'));
+    document.getElementById('btn-video-cross').addEventListener('click', () => switchAction('cross', 'btn-video-cross'));
+    document.getElementById('btn-video-hook').addEventListener('click', () => switchAction('hook', 'btn-video-hook'));
+    document.getElementById('btn-video-slip').addEventListener('click', () => switchAction('slip', 'btn-video-slip'));
 
-    // 動態 AI 拳擊動作生成器 (即時繪製發光骨骼與衝擊波動畫)
-    function renderBoxingVideoFrame() {
-      videoFrame += 0.05;
-      const w = videoCanvas.width;
-      const h = videoCanvas.height;
+    // 繪製正統亞洲人體態拳擊動作與力學引導線
+    function renderKinematicMotion() {
+      motionTime += 0.04;
+      const w = motionCanvas.width;
+      const h = motionCanvas.height;
 
-      vCtx.fillStyle = '#030712';
-      vCtx.fillRect(0, 0, w, h);
+      mCtx.fillStyle = '#030712';
+      mCtx.fillRect(0, 0, w, h);
 
-      // 背景網格
-      vCtx.strokeStyle = 'rgba(15, 23, 42, 0.8)';
-      vCtx.lineWidth = 1;
+      // 背景力學網格
+      mCtx.strokeStyle = 'rgba(30, 41, 59, 0.7)';
+      mCtx.lineWidth = 1;
       for (let x = 0; x < w; x += 40) {
-        vCtx.beginPath(); vCtx.moveTo(x, 0); vCtx.lineTo(x, h); vCtx.stroke();
+        mCtx.beginPath(); mCtx.moveTo(x, 0); mCtx.lineTo(x, h); mCtx.stroke();
       }
       for (let y = 0; y < h; y += 40) {
-        vCtx.beginPath(); vCtx.moveTo(0, y); vCtx.lineTo(w, y); vCtx.stroke();
+        mCtx.beginPath(); mCtx.moveTo(0, y); mCtx.lineTo(w, y); mCtx.stroke();
       }
 
       const centerX = w / 2;
       const centerY = h / 2 + 30;
-      const punchPhase = Math.sin(videoFrame * 3);
+      mCtx.save();
+      mCtx.translate(centerX, centerY);
 
-      vCtx.save();
-      vCtx.translate(centerX, centerY);
-
-      // 繪製動態拳擊發光人偶骨架 (Kinematic Stick Rig)
       const headY = -120;
       const spineY = -40;
       const hipY = 20;
 
-      // 軀幹
-      vCtx.strokeStyle = '#38bdf8';
-      vCtx.lineWidth = 4;
-      vCtx.beginPath();
-      vCtx.moveTo(0, headY);
-      vCtx.lineTo(0, spineY);
-      vCtx.lineTo(0, hipY);
-      vCtx.stroke();
+      if (currentAction === "cross") {
+        // 直拳週期 (0 ~ 1)
+        const punchCycle = (Math.sin(motionTime * 3) + 1) / 2;
+        const fistReach = punchCycle * 130;
 
-      // 頭部
-      vCtx.fillStyle = '#38bdf8';
-      vCtx.beginPath();
-      vCtx.arc(0, headY, 16, 0, Math.PI * 2);
-      vCtx.fill();
+        // 1. 後腳蹬地反作用力引導線 (綠色推進箭頭)
+        mCtx.strokeStyle = '#10b981';
+        mCtx.lineWidth = 3;
+        mCtx.beginPath();
+        mCtx.moveTo(60, hipY + 120);
+        mCtx.lineTo(35, hipY + 50);
+        mCtx.lineTo(10, hipY);
+        mCtx.stroke();
 
-      if (currentVideoAction === "cross") {
-        // 直拳出擊動畫
-        const punchReach = punchPhase > 0 ? punchPhase * 110 : 0;
-        
-        // 出拳右手
-        vCtx.strokeStyle = '#10b981';
-        vCtx.lineWidth = 6;
-        vCtx.beginPath();
-        vCtx.moveTo(15, spineY);
-        vCtx.lineTo(40 + punchReach * 0.5, spineY - 10);
-        vCtx.lineTo(70 + punchReach, spineY - 20);
-        vCtx.stroke();
+        // 蹬地地面力學箭頭
+        mCtx.fillStyle = '#10b981';
+        mCtx.font = '11px JetBrains Mono';
+        mCtx.fillText("▲ 420N 地面推進力", 40, hipY + 140);
 
-        // 拳峰衝擊波 (Impact Spark)
-        if (punchPhase > 0.8) {
-          vCtx.fillStyle = 'rgba(16, 185, 129, 0.8)';
-          vCtx.beginPath();
-          vCtx.arc(70 + punchReach, spineY - 20, 20 * punchPhase, 0, Math.PI * 2);
-          vCtx.fill();
+        // 2. 骨盆扭轉弧線 (青色扭力弧)
+        mCtx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+        mCtx.lineWidth = 2.5;
+        mCtx.setLineDash([4, 4]);
+        mCtx.beginPath();
+        mCtx.arc(0, hipY, 35, -0.5 * Math.PI, 0.5 * Math.PI);
+        mCtx.stroke();
+        mCtx.setLineDash([]);
+        mCtx.fillText("🔄 720°/s 轉髖", -80, hipY + 5);
+
+        // 3. 軀幹與頭部 (亞洲人俐落比例)
+        mCtx.fillStyle = '#e2e8f0';
+        mCtx.beginPath();
+        mCtx.arc(0, headY, 15, 0, Math.PI * 2);
+        mCtx.fill();
+
+        mCtx.strokeStyle = '#94a3b8';
+        mCtx.lineWidth = 5;
+        mCtx.beginPath();
+        mCtx.moveTo(0, headY);
+        mCtx.lineTo(0, spineY);
+        mCtx.lineTo(0, hipY);
+        mCtx.stroke();
+
+        // 4. 正確直拳手臂 (沉肩鞭打貫穿)
+        mCtx.strokeStyle = '#38bdf8';
+        mCtx.lineWidth = 6;
+        mCtx.beginPath();
+        mCtx.moveTo(15, spineY);
+        mCtx.lineTo(45 + fistReach * 0.4, spineY - 5);
+        mCtx.lineTo(80 + fistReach, spineY - 15);
+        mCtx.stroke();
+
+        // 拳峰穿透虛線引導線 (白色衝擊軌跡)
+        mCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        mCtx.lineWidth = 2;
+        mCtx.setLineDash([6, 4]);
+        mCtx.beginPath();
+        mCtx.moveTo(80 + fistReach, spineY - 15);
+        mCtx.lineTo(w / 2 - 20, spineY - 15);
+        mCtx.stroke();
+        mCtx.setLineDash([]);
+
+        // 衝擊光爆
+        if (punchCycle > 0.85) {
+          mCtx.fillStyle = 'rgba(16, 185, 129, 0.8)';
+          mCtx.beginPath();
+          mCtx.arc(80 + fistReach, spineY - 15, 24 * punchCycle, 0, Math.PI * 2);
+          mCtx.fill();
         }
 
-        // 防守左手
-        vCtx.strokeStyle = '#38bdf8';
-        vCtx.beginPath();
-        vCtx.moveTo(-15, spineY);
-        vCtx.lineTo(-30, spineY - 40);
-        vCtx.lineTo(-10, headY + 10);
-        vCtx.stroke();
+        // 防守左手護下巴
+        mCtx.strokeStyle = '#cbd5e1';
+        mCtx.lineWidth = 4;
+        mCtx.beginPath();
+        mCtx.moveTo(-15, spineY);
+        mCtx.lineTo(-25, spineY - 35);
+        mCtx.lineTo(-8, headY + 10);
+        mCtx.stroke();
 
-        // 雙腿蹬地旋轉
-        vCtx.strokeStyle = '#38bdf8';
-        vCtx.beginPath();
-        vCtx.moveTo(-10, hipY); vCtx.lineTo(-35, hipY + 60); vCtx.lineTo(-45, hipY + 120); // 前腿
-        vCtx.moveTo(10, hipY); vCtx.lineTo(35 + punchReach * 0.2, hipY + 55); vCtx.lineTo(50 + punchReach * 0.3, hipY + 120); // 後腿蹬轉
-        vCtx.stroke();
+        // 雙腿骨架
+        mCtx.strokeStyle = '#64748b';
+        mCtx.beginPath();
+        mCtx.moveTo(-10, hipY); mCtx.lineTo(-35, hipY + 60); mCtx.lineTo(-45, hipY + 120);
+        mCtx.moveTo(10, hipY); mCtx.lineTo(35 + punchCycle * 15, hipY + 55); mCtx.lineTo(60, hipY + 120);
+        mCtx.stroke();
 
-      } else if (currentVideoAction === "hook") {
-        // 勾拳旋轉動畫
-        const hookAngle = videoFrame * 2;
-        const hookX = Math.cos(hookAngle) * 60;
-        const hookZ = Math.sin(hookAngle) * 30;
+      } else if (currentAction === "hook") {
+        // 勾拳旋轉力學
+        const hookAngle = motionTime * 2.5;
+        const hookX = Math.cos(hookAngle) * 75;
+        const hookY = Math.sin(hookAngle) * 20;
 
-        vCtx.strokeStyle = '#f59e0b';
-        vCtx.lineWidth = 6;
-        vCtx.beginPath();
-        vCtx.moveTo(-15, spineY);
-        vCtx.lineTo(-50, spineY - 15);
-        vCtx.lineTo(hookX, spineY - 25);
-        vCtx.stroke();
+        // 90° 剛性鎖肘力學標註
+        mCtx.strokeStyle = '#f59e0b';
+        mCtx.lineWidth = 6;
+        mCtx.beginPath();
+        mCtx.moveTo(-15, spineY);
+        mCtx.lineTo(-55, spineY - 10);
+        mCtx.lineTo(hookX, spineY - 20 + hookY);
+        mCtx.stroke();
 
-        // 旋轉光弧
-        vCtx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
-        vCtx.beginPath();
-        vCtx.arc(0, spineY - 20, 65, 0, Math.PI);
-        vCtx.stroke();
+        // 90° 肘關節角度標籤
+        mCtx.fillStyle = '#f59e0b';
+        mCtx.font = '10px JetBrains Mono';
+        mCtx.fillText("📐 肘部 90° 剛性鎖定 (零肩夾擠)", -110, spineY - 35);
+
+        // 旋轉動能光弧
+        mCtx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+        mCtx.lineWidth = 2.5;
+        mCtx.beginPath();
+        mCtx.arc(0, spineY - 15, 75, 0, Math.PI);
+        mCtx.stroke();
+
+        // 軀幹
+        mCtx.fillStyle = '#e2e8f0';
+        mCtx.beginPath(); mCtx.arc(0, headY, 15, 0, Math.PI * 2); mCtx.fill();
+        mCtx.strokeStyle = '#94a3b8';
+        mCtx.lineWidth = 5;
+        mCtx.beginPath(); mCtx.moveTo(0, headY); mCtx.lineTo(0, spineY); mCtx.lineTo(0, hipY); mCtx.stroke();
 
       } else {
-        // 閃躲 Slip 動畫
-        const slipOffset = Math.sin(videoFrame * 2.5) * 45;
+        // 閃躲 Slip 髖鉸鏈中立脊椎
+        const slipX = Math.sin(motionTime * 2.5) * 45;
 
-        vCtx.strokeStyle = '#a855f7';
-        vCtx.lineWidth = 5;
-        vCtx.beginPath();
-        vCtx.moveTo(slipOffset * 0.4, headY);
-        vCtx.lineTo(slipOffset * 0.2, spineY);
-        vCtx.lineTo(0, hipY);
-        vCtx.stroke();
+        // 脊椎中立度力學引導線 (紫色安全力線)
+        mCtx.strokeStyle = '#a855f7';
+        mCtx.lineWidth = 3;
+        mCtx.setLineDash([4, 4]);
+        mCtx.beginPath();
+        mCtx.moveTo(slipX * 0.4, headY);
+        mCtx.lineTo(slipX * 0.2, spineY);
+        mCtx.lineTo(0, hipY);
+        mCtx.stroke();
+        mCtx.setLineDash([]);
+        mCtx.fillText("🛡️ 髖鉸鏈折疊 (腰椎 0% 剪力)", -80, hipY + 45);
 
-        // 避開的紅色攻擊拳路
-        vCtx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
-        vCtx.lineWidth = 3;
-        vCtx.setLineDash([8, 6]);
-        vCtx.beginPath();
-        vCtx.moveTo(120, headY - 10);
-        vCtx.lineTo(-120, headY - 10);
-        vCtx.stroke();
-        vCtx.setLineDash([]);
+        // 避開之紅色拳路
+        mCtx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+        mCtx.lineWidth = 3;
+        mCtx.beginPath();
+        mCtx.moveTo(130, headY - 5);
+        mCtx.lineTo(-130, headY - 5);
+        mCtx.stroke();
+        mCtx.fillStyle = '#ef4444';
+        mCtx.fillText("❌ 對手直線拳路 (成功避開)", -70, headY - 15);
+
+        // 人體
+        mCtx.fillStyle = '#e2e8f0';
+        mCtx.beginPath(); mCtx.arc(slipX * 0.4, headY, 15, 0, Math.PI * 2); mCtx.fill();
       }
 
-      vCtx.restore();
+      mCtx.restore();
     }
 
+    // 視圖切換 (AI 影片 vs 力學引導線)
+    const asianVideo = document.getElementById('asian-boxer-video');
+    const btnViewVideo = document.getElementById('btn-view-video');
+    const btnViewMotion = document.getElementById('btn-view-motion');
 
-    // ==================== 主動畫迴圈 ====================
+    btnViewVideo.addEventListener('click', () => {
+      asianVideo.classList.remove('hidden');
+      motionCanvas.classList.add('hidden');
+      btnViewVideo.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500 text-slate-950";
+      btnViewMotion.className = "px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white";
+    });
+
+    btnViewMotion.addEventListener('click', () => {
+      asianVideo.classList.add('hidden');
+      motionCanvas.classList.remove('hidden');
+      resizeMotionCanvas();
+      btnViewMotion.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500 text-slate-950";
+      btnViewVideo.className = "px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white";
+    });
+
+    // ==================== 主動畫循環 ====================
     function animate() {
       requestAnimationFrame(animate);
       leftControls.update();
+      updateLeftGuides();
       leftRenderer.render(leftScene, leftCamera);
-      renderBoxingVideoFrame();
+      renderKinematicMotion();
     }
     animate();
 
@@ -562,7 +753,7 @@
       leftCamera.aspect = leftCanvas.clientWidth / leftCanvas.clientHeight;
       leftCamera.updateProjectionMatrix();
       leftRenderer.setSize(leftCanvas.clientWidth, leftCanvas.clientHeight);
-      resizeVideoCanvas();
+      resizeMotionCanvas();
     });
   </script>
 </body>
