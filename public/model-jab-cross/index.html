@@ -206,7 +206,7 @@
     scene.background = new THREE.Color(0x020617);
 
     const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-    camera.position.set(0, 1.35, 3.8);
+    camera.position.set(0, 1.0, 5.5);
 
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
@@ -216,9 +216,9 @@
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxDistance = 7.0;
+    controls.maxDistance = 10.0;
     controls.minDistance = 1.0;
-    controls.target.set(0, 0.95, 0);
+    controls.target.set(0, 0.9, 0);
 
     // 燈光
     const ambLight = new THREE.AmbientLight(0x1e293b, 1.5);
@@ -253,20 +253,16 @@
         const wrapper = new THREE.Group();
         wrapper.rotation.x = -Math.PI / 2;
         wrapper.add(model);
-        
-        // 計算 T-Pose 模型尺寸並縮放
+
+        // 計算模型 T-Pose 尺寸（Blender 匯出後通常已換算成公尺，人約 1.7 高）
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        // Mixamo FBX 是 cm 單位 → 原始 size.y 約 170cm
-        const scale = 1.8 / (size.y || 170);
+        // 目標顯示高度 1.8 個世界單位
+        const targetHeight = 1.8;
+        const scale = targetHeight / (size.z > size.y ? size.z : size.y);
         wrapper.scale.set(scale, scale, scale);
-        // 讓腳底貼地，人體置中
-        wrapper.position.set(
-          -center.x * scale,
-          0,
-          center.y * scale   // Z-up 的 Y 在旋轉後變成世界 Z，往前偏移
-        );
+        // 位置：水平居中，腳底貼地
+        wrapper.position.set(0, 0, 0);
 
         scene.add(wrapper);
 
