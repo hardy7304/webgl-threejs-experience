@@ -270,14 +270,26 @@
         // 播放動作動畫 (Jab Cross 68 影格出拳循環)
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
-          actionClip = mixer.clipAction(gltf.animations[0]);
+          const clip = gltf.animations[0];
+          actionClip = mixer.clipAction(clip);
           actionClip.setLoop(THREE.LoopRepeat);
           actionClip.play();
+          
+          console.log("✅ 成功播放動畫:", clip.name, "時長:", clip.duration, "秒, 軌道數:", clip.tracks.length);
+          document.getElementById('motion-stage-badge').innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
+        } else {
+          console.warn("⚠️ 此 GLB 內未找到動畫剪輯");
+          document.getElementById('motion-stage-badge').innerText = "未檢測到內嵌動畫";
         }
 
         spinner.style.display = 'none';
       },
-      undefined,
+      (xhr) => {
+        if (xhr.lengthComputable) {
+          const percent = Math.round((xhr.loaded / xhr.total) * 100);
+          spinner.querySelector('span').innerText = `載入中 ${percent}%...`;
+        }
+      },
       (err) => {
         console.error('GLB 載入失敗:', err);
         spinner.innerHTML = '<span class="text-xs text-red-400 font-bold">載入失敗</span>';
