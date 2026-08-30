@@ -7,14 +7,19 @@
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Three.js, OrbitControls, GLTFLoader, SkeletonUtils -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Three.js r160 ES Module (現代版，動畫支援最完整) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -187,7 +192,11 @@
   </main>
 
   <!-- 核心腳本 -->
-  <script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
     lucide.createIcons();
 
     const canvas = document.getElementById('three-canvas');
@@ -204,7 +213,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.maxDistance = 7.0;
@@ -233,8 +242,8 @@
     let isPlaying = true;
     const clock = new THREE.Clock();
 
-    // 載入由 Blender 5.2 綁定 Jab Cross 動作後的完整 3D 人體 GLB
-    const gltfLoader = new THREE.GLTFLoader();
+    // 載入 Jab Cross GLB (Mixamo With Skin)
+    const gltfLoader = new GLTFLoader();
     gltfLoader.load(
       '/models/jab_cross.glb',
       (gltf) => {
