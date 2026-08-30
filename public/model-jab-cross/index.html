@@ -248,13 +248,13 @@
         const scale = 2.2 / (maxDim || 1);
         
         model.scale.set(scale, scale, scale);
+        // 修正 Mixamo FBX Z-up 座標軸，讓人體站立
+        model.rotation.x = -Math.PI / 2;
         model.position.set(
           -center.x * scale,
-          -box.min.y * scale,
-          -center.z * scale
+          -box.min.z * scale,
+          center.y * scale
         );
-        
-        console.log('Model size:', size, 'Scale applied:', scale);
 
         // 材質調整 (深藍金屬光澤 + 發光邊緣)
         model.traverse((child) => {
