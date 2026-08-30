@@ -240,15 +240,9 @@
       (gltf) => {
         const model = gltf.scene;
         
-        // 自動計算大小與縮放居中
-        const box = new THREE.Box3().setFromObject(model);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 2.4 / (maxDim || 1);
-        
-        model.scale.set(scale, scale, scale);
-        model.position.set(-center.x * scale, 0, -center.z * scale);
+        // 保持原點正立，適當等比縮放
+        model.scale.set(1.0, 1.0, 1.0);
+        model.position.set(0, 0, 0);
 
         // 材質調整 (深藍金屬光澤 + 發光邊緣)
         model.traverse((child) => {
@@ -275,7 +269,7 @@
           actionClip.setLoop(THREE.LoopRepeat);
           actionClip.play();
           
-          console.log("✅ 成功播放動畫:", clip.name, "時長:", clip.duration, "秒, 軌道數:", clip.tracks.length);
+          console.log("✅ 成功播放動畫:", clip.name, "時長:", clip.duration, "秒");
           document.getElementById('motion-stage-badge').innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
         } else {
           console.warn("⚠️ 此 GLB 內未找到動畫剪輯");
