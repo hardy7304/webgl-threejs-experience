@@ -240,9 +240,21 @@
       (gltf) => {
         const model = gltf.scene;
         
-        // 保持原點正立，適當等比縮放
-        model.scale.set(1.0, 1.0, 1.0);
-        model.position.set(0, 0, 0);
+        // 自動計算 bounding box 縮放居中 (Mixamo FBX 是 cm 單位)
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 2.2 / (maxDim || 1);
+        
+        model.scale.set(scale, scale, scale);
+        model.position.set(
+          -center.x * scale,
+          -box.min.y * scale,
+          -center.z * scale
+        );
+        
+        console.log('Model size:', size, 'Scale applied:', scale);
 
         // 材質調整 (深藍金屬光澤 + 發光邊緣)
         model.traverse((child) => {
