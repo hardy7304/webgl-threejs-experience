@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>真實 3D 動作捕捉：刺拳與後手直拳 (Jab Cross)｜嘉豪師傅 HAOBOXING</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js, OrbitControls, GLTFLoader, SkeletonUtils -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
+    
+    * {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+      box-sizing: border-box;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: #020617;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .boxer-glass {
+      background: rgba(10, 15, 30, 0.92);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.08);
+    }
+
+    .glow-cyan-btn {
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.45);
+    }
+
+    .glow-cyan-btn:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.7);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-cyan-500 selection:text-white">
+
+  <!-- 頂部導航 Bar -->
+  <header class="sticky top-0 z-50 boxer-glass border-b border-cyan-500/20 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="/portal" class="p-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-all flex items-center gap-1.5 text-xs font-bold">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+          <span>回目錄總覽</span>
+        </a>
+        <div>
+          <h1 class="text-base font-black text-white flex items-center gap-2">
+            真實 3D 動作捕捉：刺拳與直拳組合拳
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono-code font-bold">JAB CROSS FBX</span>
+          </h1>
+          <p class="text-[11px] text-gray-400">Blender 5.2 自動轉檔 × Three.js 60FPS 骨骼動力學實時播放</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="/model-ai-lab" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">AI 實驗室</a>
+        <a href="/model-d" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">方案 D (熱力圖)</a>
+        <a href="/model-c" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">方案 C (拳擊力學)</a>
+        <a href="/model-b" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">方案 B (七大筋膜)</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 3D 視窗區 (佔 8 欄) -->
+    <div class="lg:col-span-8 boxer-glass rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden border border-cyan-500/30">
+      
+      <!-- 頂部狀態標籤 -->
+      <div class="flex justify-between items-center mb-3 z-30">
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono-code flex items-center gap-1">
+            <i data-lucide="activity" class="w-3 h-3 text-cyan-400 animate-pulse"></i>
+            FBX 動作骨骼已掛載 (68 Frames)
+          </span>
+          <span id="motion-stage-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono-code">
+            前手刺拳 (Jab) ➡️ 後手重直拳 (Cross)
+          </span>
+        </div>
+        <span class="text-[10px] text-gray-400 font-mono-code">Blender 5.2 Pipeline</span>
+      </div>
+
+      <!-- 3D Canvas 容器 -->
+      <div class="relative w-full h-[420px] md:h-[480px] rounded-2xl bg-[#030712] border border-slate-800 overflow-hidden flex items-center justify-center">
+        <div id="loading-spinner" class="absolute z-40 flex flex-col items-center gap-2">
+          <div class="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-[11px] text-cyan-300 font-mono-code font-bold">載入 Jab Cross 3D 動畫模型...</span>
+        </div>
+        <canvas id="three-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+        <!-- 畫面浮動視角按鈕 -->
+        <div class="absolute bottom-3 right-3 z-30 flex gap-1.5">
+          <button id="btn-cam-side" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">側視角 (發力力線)</button>
+          <button id="btn-cam-front" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">正視角 (打擊線)</button>
+          <button id="btn-cam-reset" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">重設視角</button>
+        </div>
+      </div>
+
+      <!-- 底部播放控制器 Bar -->
+      <div class="mt-4 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button id="btn-play-pause" class="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-all flex items-center gap-1 text-xs font-bold">
+            <i data-lucide="pause" id="icon-play-pause" class="w-4 h-4"></i>
+            <span id="text-play-pause">暫停</span>
+          </button>
+          <button id="btn-restart" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>重播</span>
+          </button>
+        </div>
+
+        <!-- 播放速度切換 -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs text-gray-400 font-mono-code mr-1">速度:</span>
+          <button id="btn-spd-1" class="px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 text-xs font-bold font-mono-code">1.0x</button>
+          <button id="btn-spd-05" class="px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code">0.5x (慢動)</button>
+          <button id="btn-spd-02" class="px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code">0.25x (微調)</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右側動作力學解析專區 (佔 4 欄) -->
+    <div class="lg:col-span-4 flex flex-col gap-4">
+
+      <!-- 階段 1：刺拳 Jab 力學分析 -->
+      <div class="boxer-glass rounded-3xl p-5 border border-cyan-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono-code">PHASE 1 (Frames 1~28)</span>
+          <span class="text-xs text-emerald-400 font-bold font-mono-code">⚡ 前手刺拳 (Jab)</span>
+        </div>
+        <h3 class="text-base font-black text-white mb-2">前手快速測距與干擾視線</h3>
+        <p class="text-xs text-gray-300 leading-relaxed">
+          前足微墊推進，前手三角肌前束與肱三頭肌瞬間彈出，肩部自然抬高護住下巴，出拳後原路快速縮回。
+        </p>
+        <div class="mt-3 p-2.5 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-[11px] text-gray-400 font-mono-code space-y-1">
+          <div>• 出拳速度: <span class="text-cyan-300 font-bold">8.5 m/s (極速試探)</span></div>
+          <div>• 肩部代償: <span class="text-emerald-400 font-bold">0% (沉肩無聳肩)</span></div>
+        </div>
+      </div>
+
+      <!-- 階段 2：後手直拳 Cross 爆發力學 -->
+      <div class="boxer-glass rounded-3xl p-5 border border-emerald-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code">PHASE 2 (Frames 29~68)</span>
+          <span class="text-xs text-amber-400 font-bold font-mono-code">💥 後手重直拳 (Cross)</span>
+        </div>
+        <h3 class="text-base font-black text-white mb-2">後足蹬地 ➡️ 骨盆螺旋 ➡️ 鞭打重擊</h3>
+        <p class="text-xs text-gray-300 leading-relaxed">
+          後腳跟 45° 旋轉蹬地傳導反作用力，前鋸肌與胸大肌產生螺旋扭矩，拳峰在接觸目標瞬間完成旋腕鎖定。
+        </p>
+        <div class="mt-3 p-2.5 rounded-xl bg-slate-950/70 border border-emerald-500/20 text-[11px] text-gray-400 font-mono-code space-y-1">
+          <div>• 地面反作用力: <span class="text-emerald-300 font-bold">420 N (100% 傳導)</span></div>
+          <div>• 髖部旋轉角速度: <span class="text-cyan-300 font-bold">720 °/s (核心爆發)</span></div>
+        </div>
+      </div>
+
+      <!-- 預約諮詢按鈕 -->
+      <a href="https://line.me/R/ti/p/@339qipqu?text=%E6%82%A8%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%90%91%E5%98%89%E8%B1%AA%E5%B8%AB%E5%82%85%E8%AB%AE%E8%A9%A2%E3%80%903D%20%E6%8B%B3%E6%93%8A%E5%8B%95%E5%8A%9B%E9%8F%88%E8%88%87%E8%82%8C%E7%AD%8B%E8%86%9C%E8%AA%BF%E7%90%86%E3%80%91%EF%BC%81" target="_blank" class="p-4 rounded-2xl glow-cyan-btn text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all">
+        <i data-lucide="message-circle" class="w-4 h-4"></i>
+        <span>加 LINE 諮詢拳擊動作力學評估</span>
+      </a>
+
+    </div>
+
+  </main>
+
+  <!-- 核心腳本 -->
+  <script>
+    lucide.createIcons();
+
+    const canvas = document.getElementById('three-canvas');
+    const spinner = document.getElementById('loading-spinner');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020617);
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 1.2, 4.5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 7.0;
+    controls.minDistance = 1.0;
+    controls.target.set(0, 0.9, 0);
+
+    // 燈光
+    const ambLight = new THREE.AmbientLight(0x1e293b, 1.5);
+    scene.add(ambLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffedd5, 2.0);
+    keyLight.position.set(3, 5, 4);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 2.5);
+    rimLight.position.set(-4, 2, -3);
+    scene.add(rimLight);
+
+    // 地面反光網格
+    const grid = new THREE.GridHelper(10, 20, 0x0284c7, 0x1e293b);
+    grid.position.y = -0.01;
+    scene.add(grid);
+
+    let mixer = null;
+    let actionClip = null;
+    let isPlaying = true;
+    const clock = new THREE.Clock();
+
+    // 載入由 Blender 5.2 轉出的 Jab Cross GLB 動畫模型
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load(
+      '/models/jab_cross.glb',
+      (gltf) => {
+        const model = gltf.scene;
+        
+        // 自動計算大小與縮放
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 2.4 / (maxDim || 1);
+        
+        model.scale.set(scale, scale, scale);
+        model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
+
+        // 材質調整 (發光骨骼與金屬科技外觀)
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.material = new THREE.MeshStandardMaterial({
+              color: 0x0284c7,
+              metalness: 0.8,
+              roughness: 0.2,
+              emissive: 0x0c4a6e
+            });
+            child.castShadow = true;
+          }
+        });
+
+        // 骨骼 Helper (可視化拳擊骨骼發力)
+        const skeletonHelper = new THREE.SkeletonHelper(model);
+        skeletonHelper.material.linewidth = 2;
+        skeletonHelper.material.color.setHex(0x38bdf8);
+        scene.add(skeletonHelper);
+
+        scene.add(model);
+
+        // 播放動作動畫
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(model);
+          actionClip = mixer.clipAction(gltf.animations[0]);
+          actionClip.setLoop(THREE.LoopRepeat);
+          actionClip.play();
+        }
+
+        spinner.style.display = 'none';
+      },
+      undefined,
+      (err) => {
+        console.error('GLB 載入失敗:', err);
+        spinner.innerHTML = '<span class="text-xs text-red-400 font-bold">載入失敗</span>';
+      }
+    );
+
+    // 控制器按鈕事件
+    const btnPlayPause = document.getElementById('btn-play-pause');
+    const iconPlayPause = document.getElementById('icon-play-pause');
+    const textPlayPause = document.getElementById('text-play-pause');
+
+    btnPlayPause.addEventListener('click', () => {
+      if (!actionClip) return;
+      isPlaying = !isPlaying;
+      actionClip.paused = !isPlaying;
+      if (isPlaying) {
+        textPlayPause.innerText = "暫停";
+        iconPlayPause.setAttribute('data-lucide', 'pause');
+      } else {
+        textPlayPause.innerText = "播放";
+        iconPlayPause.setAttribute('data-lucide', 'play');
+      }
+      lucide.createIcons();
+    });
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      if (!actionClip) return;
+      actionClip.reset();
+      actionClip.play();
+      isPlaying = true;
+      textPlayPause.innerText = "暫停";
+      lucide.createIcons();
+    });
+
+    function setSpeed(spd, activeId) {
+      if (mixer) mixer.timeScale = spd;
+      ['btn-spd-1', 'btn-spd-05', 'btn-spd-02'].forEach(id => {
+        const b = document.getElementById(id);
+        if (id === activeId) {
+          b.className = "px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 text-xs font-bold font-mono-code";
+        } else {
+          b.className = "px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code";
+        }
+      });
+    }
+
+    document.getElementById('btn-spd-1').addEventListener('click', () => setSpeed(1.0, 'btn-spd-1'));
+    document.getElementById('btn-spd-05').addEventListener('click', () => setSpeed(0.5, 'btn-spd-05'));
+    document.getElementById('btn-spd-02').addEventListener('click', () => setSpeed(0.25, 'btn-spd-02'));
+
+    // 視角切換
+    document.getElementById('btn-cam-side').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 3.5, y: 1.1, z: 0.5, duration: 1.2, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0.9, z: 0, duration: 1.2, ease: 'power2.out' });
+    });
+    document.getElementById('btn-cam-front').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 0, y: 1.1, z: 4.2, duration: 1.2, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0.9, z: 0, duration: 1.2, ease: 'power2.out' });
+    });
+    document.getElementById('btn-cam-reset').addEventListener('click', () => {
+      gsap.to(camera.position, { x: 1.8, y: 1.4, z: 3.8, duration: 1.2, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: 0.9, z: 0, duration: 1.2, ease: 'power2.out' });
+    });
+
+    // 動畫循環
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      if (mixer) mixer.update(delta);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    });
+  </script>
+</body>
+</html>
