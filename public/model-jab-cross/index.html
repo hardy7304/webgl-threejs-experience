@@ -249,22 +249,24 @@
       (gltf) => {
         const model = gltf.scene;
         
-        // 用 Group 包裹以修正 Mixamo Z-up 軸向，不影響骨骼動畫
+        // 用 Group 包裹修正 Mixamo Z-up → Three.js Y-up
         const wrapper = new THREE.Group();
-        wrapper.rotation.x = -Math.PI / 2;
+        wrapper.rotation.x = -Math.PI / 2;  // 讓人體站立
+        wrapper.rotation.y = Math.PI;        // 轉 180° 面向相機
         wrapper.add(model);
 
-        // 計算模型 T-Pose 尺寸（Blender 匯出後通常已換算成公尺，人約 1.7 高）
+        // 計算尺寸並縮放
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
-        // 目標顯示高度 1.8 個世界單位
-        const targetHeight = 1.8;
-        const scale = targetHeight / (size.z > size.y ? size.z : size.y);
+        const tallest = Math.max(size.x, size.y, size.z);
+        const scale = 1.8 / (tallest || 1);
         wrapper.scale.set(scale, scale, scale);
-        // 位置：水平居中，腳底貼地
         wrapper.position.set(0, 0, 0);
-
         scene.add(wrapper);
+
+        // 計算世界空間 bbox，讓腳底精準踩在格線 y=0
+        const worldBox = new THREE.Box3().setFromObject(wrapper);
+        wrapper.position.y -= worldBox.min.y;
 
         // 材質調整
         model.traverse((child) => {
