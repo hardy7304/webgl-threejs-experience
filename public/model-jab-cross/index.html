@@ -248,21 +248,74 @@
     let isPlaying = true;
     const clock = new THREE.Clock();
 
-    // 儲存全局自適應相機參數供按鈕切換使用
+    // 儲存全局自適應相機參數供按鈕與 resize 使用
     let charTargetY = 0.9;
     let charCameraZ = 3.2;
+    let charSize = new THREE.Vector3(1, 1.8, 1);
 
-    // 5. 載入 3D 動作模型並自動置中 + 鏡頭對位
+    // 【輔助函式 1】：同時兼顧水平與垂直 FOV 的相機最佳距離計算
+    function calculateCameraDistance(cam, size, fitOffset = 1.75) {
+      const fov = THREE.MathUtils.degToRad(cam.fov);
+      const aspect = cam.aspect;
+
+      const height = Math.max(size.y, 0.001);
+      const width = Math.max(size.x, size.z, 0.001);
+
+      const distanceForHeight = height / 2 / Math.tan(fov / 2);
+
+      const horizontalFov = 2 * Math.atan(Math.tan(fov / 2) * aspect);
+      const distanceForWidth = width / 2 / Math.tan(horizontalFov / 2);
+
+      return Math.max(distanceForHeight, distanceForWidth) * fitOffset;
+    }
+
+    // 【輔助函式 2】：只針對根骨骼 (Hips/Root) 鎖定 X/Z 平移，絕不破壞手臂與身軀動畫
+    function lockRootMotionXZ(clip) {
+      const rootNames = [
+        'Hips',
+        'mixamorigHips',
+        'mixamorig:Hips',
+        'Armature',
+        'Root',
+        'root'
+      ];
+
+      clip.tracks.forEach((track) => {
+        if (!track.name.endsWith('.position')) return;
+
+        const isRootTrack = rootNames.some((name) => track.name.includes(name));
+        if (!isRootTrack) return;
+
+        const vals = track.values;
+        if (!vals || vals.length < 3) return;
+
+        const firstX = vals[0];
+        const firstZ = vals[2];
+
+        for (let i = 0; i < vals.length; i += 3) {
+          vals[i] = firstX;     // 鎖定 X 軸平移
+          vals[i + 2] = firstZ; // 鎖定 Z 軸平移
+        }
+
+        console.log('✅ 已精準鎖定 Root Bone X/Z:', track.name);
+      });
+    }
+
+    // 5. 載入 3D 動作模型 (採用 ModelGroup 雙層隔離架構)
     const gltfLoader = new GLTFLoader();
     gltfLoader.load(
       '/models/jab_cross.glb',
       (gltf) => {
         const model = gltf.scene;
 
+        // 外層 Group 代表角色世界中心
+        const modelGroup = new THREE.Group();
+        modelGroup.name = 'CharacterCenterGroup';
+        scene.add(modelGroup);
+
         // 材質調整 (深藍金屬光澤 + 發光邊緣)
         model.traverse((child) => {
           if (child.isMesh) {
-            // 隱藏多餘的幾何物體
             if (child.name === 'Icosphere') {
               child.visible = false;
               return;
@@ -279,62 +332,63 @@
           }
         });
 
-        // ----------------------------------------------------
-        // 【核心算法】：Box3 自動計算 Bounding Box、置中與鏡頭對準
-        // ----------------------------------------------------
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
+        // 加入 group 並強制更新矩陣
+        modelGroup.add(model);
+        model.updateMatrixWorld(true);
+        modelGroup.updateMatrixWorld(true);
 
-        // 1. 將模型在 X/Z 軸居中，腳底貼齊世界座標 y=0
+        // 1. 初次計算 Bounding Box：本體 X/Z 置中，Y 貼地
+        let box = new THREE.Box3().setFromObject(model);
+        let center = box.getCenter(new THREE.Vector3());
+        let size = box.getSize(new THREE.Vector3());
+
         model.position.x -= center.x;
         model.position.z -= center.z;
         model.position.y -= box.min.y;
 
-        scene.add(model);
+        // 2. 再次更新世界矩陣，取得校正後的世界空間尺寸
+        model.updateMatrixWorld(true);
+        modelGroup.updateMatrixWorld(true);
 
-        // 2. 根據模型高度與寬度，利用 FOV 自動計算最佳相機距離
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const fovRad = camera.fov * (Math.PI / 180);
-        let cameraDist = Math.abs(maxDim / 2 / Math.tan(fovRad / 2));
-        cameraDist *= 1.45; // 加上 1.45x 安全邊界確保全身完整入鏡
+        box = new THREE.Box3().setFromObject(modelGroup);
+        center = box.getCenter(new THREE.Vector3());
+        size = box.getSize(new THREE.Vector3());
+        charSize.copy(size);
 
-        charTargetY = size.y * 0.52; // 聚焦在角色胸口/腹部中心
-        charCameraZ = cameraDist;
+        // 3. 對焦高度：胸腹中心 (52%)
+        charTargetY = size.y * 0.52;
 
-        // 3. 設定鏡頭位置與視角中心
+        // 4. 動態計算最佳相機距離 (同時考慮 canvas 寬度與高度)
+        charCameraZ = calculateCameraDistance(camera, size, 1.8);
+
+        // 5. 設定相機與控制器
         camera.position.set(0, charTargetY, charCameraZ);
         camera.lookAt(0, charTargetY, 0);
 
-        // 4. 更新 OrbitControls 旋轉中心為角色身體中心
+        camera.near = charCameraZ / 100;
+        camera.far = charCameraZ * 100;
+        camera.updateProjectionMatrix();
+
         controls.target.set(0, charTargetY, 0);
+        controls.minDistance = charCameraZ * 0.25;
+        controls.maxDistance = charCameraZ * 4.0;
         controls.update();
 
-        // ----------------------------------------------------
-        // 【Root Motion 鎖定】：防止出拳骨骼位移跑出畫面
-        // ----------------------------------------------------
+        // 6. 播放動畫 (只鎖定 Root Motion)
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           const clip = gltf.animations[0];
 
-          // 鎖定 Root Bone (Hips) 的 X/Z 平移，保持原地出拳不飄移
-          clip.tracks.forEach((track) => {
-            if (track.name.endsWith('.position')) {
-              const vals = track.values;
-              const firstX = vals[0];
-              const firstZ = vals[2];
-              for (let i = 0; i < vals.length; i += 3) {
-                vals[i] = firstX;     // 鎖定 X 軸平移
-                vals[i + 2] = firstZ; // 鎖定 Z 軸平移
-              }
-            }
-          });
+          lockRootMotionXZ(clip);
 
           actionClip = mixer.clipAction(clip);
           actionClip.setLoop(THREE.LoopRepeat);
           actionClip.play();
 
-          document.getElementById('motion-stage-badge').innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
+          const badge = document.getElementById('motion-stage-badge');
+          if (badge) {
+            badge.innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
+          }
         } else {
           document.getElementById('motion-stage-badge').innerText = "未檢測到內嵌動畫";
         }
@@ -397,18 +451,59 @@
     document.getElementById('btn-spd-05').addEventListener('click', () => setSpeed(0.5, 'btn-spd-05'));
     document.getElementById('btn-spd-02').addEventListener('click', () => setSpeed(0.25, 'btn-spd-02'));
 
-    // 7. 視角切換 (自動適配相機距離)
-    document.getElementById('btn-cam-side').addEventListener('click', () => {
-      gsap.to(camera.position, { x: charCameraZ * 0.95, y: charTargetY + 0.1, z: 0.4, duration: 1.0, ease: 'power2.out' });
-      gsap.to(controls.target, { x: 0, y: charTargetY, z: 0, duration: 1.0, ease: 'power2.out' });
+    // 7. 視角切換 (純側視角、正視角、透視角，並在動畫中即時更新 controls)
+    document.getElementById('btn-cam-side')?.addEventListener('click', () => {
+      gsap.to(camera.position, {
+        x: charCameraZ,
+        y: charTargetY,
+        z: 0,
+        duration: 1.0,
+        ease: 'power2.out'
+      });
+      gsap.to(controls.target, {
+        x: 0,
+        y: charTargetY,
+        z: 0,
+        duration: 1.0,
+        ease: 'power2.out',
+        onUpdate: () => controls.update()
+      });
     });
-    document.getElementById('btn-cam-front').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 0, y: charTargetY, z: charCameraZ, duration: 1.0, ease: 'power2.out' });
-      gsap.to(controls.target, { x: 0, y: charTargetY, z: 0, duration: 1.0, ease: 'power2.out' });
+
+    document.getElementById('btn-cam-front')?.addEventListener('click', () => {
+      gsap.to(camera.position, {
+        x: 0,
+        y: charTargetY,
+        z: charCameraZ,
+        duration: 1.0,
+        ease: 'power2.out'
+      });
+      gsap.to(controls.target, {
+        x: 0,
+        y: charTargetY,
+        z: 0,
+        duration: 1.0,
+        ease: 'power2.out',
+        onUpdate: () => controls.update()
+      });
     });
-    document.getElementById('btn-cam-reset').addEventListener('click', () => {
-      gsap.to(camera.position, { x: charCameraZ * 0.4, y: charTargetY + 0.25, z: charCameraZ * 0.9, duration: 1.0, ease: 'power2.out' });
-      gsap.to(controls.target, { x: 0, y: charTargetY, z: 0, duration: 1.0, ease: 'power2.out' });
+
+    document.getElementById('btn-cam-reset')?.addEventListener('click', () => {
+      gsap.to(camera.position, {
+        x: charCameraZ * 0.45,
+        y: charTargetY + charCameraZ * 0.12,
+        z: charCameraZ * 0.9,
+        duration: 1.0,
+        ease: 'power2.out'
+      });
+      gsap.to(controls.target, {
+        x: 0,
+        y: charTargetY,
+        z: 0,
+        duration: 1.0,
+        ease: 'power2.out',
+        onUpdate: () => controls.update()
+      });
     });
 
     // 8. 動畫循環
@@ -421,10 +516,16 @@
     }
     animate();
 
+    // 9. 自適應視窗縮放
     window.addEventListener('resize', () => {
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     });
   </script>
 </body>
