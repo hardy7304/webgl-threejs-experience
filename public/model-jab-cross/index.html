@@ -240,27 +240,25 @@
       (gltf) => {
         const model = gltf.scene;
         
-        // 自動計算 bounding box 縮放居中 (Mixamo FBX 是 cm 單位)
+        // 用 Group 包裹以修正 Mixamo Z-up 軸向，不影響骨骼動畫
+        const wrapper = new THREE.Group();
+        wrapper.rotation.x = -Math.PI / 2;
+        wrapper.add(model);
+        
+        // 先計算原始模型大小，再縮放 wrapper
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         const scale = 2.2 / (maxDim || 1);
-        
-        model.scale.set(scale, scale, scale);
-        // 修正 Mixamo FBX Z-up 座標軸，讓人體站立
-        model.rotation.x = -Math.PI / 2;
-        model.position.set(
-          -center.x * scale,
-          -box.min.z * scale,
-          center.y * scale
-        );
+        wrapper.scale.set(scale, scale, scale);
 
-        // 材質調整 (深藍金屬光澤 + 發光邊緣)
+        scene.add(wrapper);
+
+        // 材質調整
         model.traverse((child) => {
           if (child.isMesh) {
             child.material = new THREE.MeshStandardMaterial({
-              color: 0x0284c7, // 科技深藍
+              color: 0x0284c7,
               metalness: 0.75,
               roughness: 0.25,
               emissive: 0x0369a1,
@@ -271,20 +269,15 @@
           }
         });
 
-        scene.add(model);
-
-        // 播放動作動畫 (Jab Cross 68 影格出拳循環)
+        // 播放動畫 — AnimationMixer 綁定 model 本身，不受 wrapper 旋轉影響
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           const clip = gltf.animations[0];
           actionClip = mixer.clipAction(clip);
           actionClip.setLoop(THREE.LoopRepeat);
           actionClip.play();
-          
-          console.log("✅ 成功播放動畫:", clip.name, "時長:", clip.duration, "秒");
           document.getElementById('motion-stage-badge').innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
         } else {
-          console.warn("⚠️ 此 GLB 內未找到動畫剪輯");
           document.getElementById('motion-stage-badge').innerText = "未檢測到內嵌動畫";
         }
 
