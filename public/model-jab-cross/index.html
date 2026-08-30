@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>真實 3D 動作捕捉：刺拳與後手直拳 (Jab Cross)｜嘉豪師傅 HAOBOXING</title>
+  <title>出拳卡卡、發力不順？用 3D 動作力學找出身體卡點｜嘉豪師傅 出拳動力鏈徒手評估</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Three.js r160 ES Module (現代版，動畫支援最完整) -->
+  <!-- Three.js r160 ES Module -->
   <script type="importmap">
     {
       "imports": {
@@ -39,12 +39,12 @@
       overflow-x: hidden;
     }
 
-    .boxer-glass {
-      background: rgba(10, 15, 30, 0.92);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      box-shadow: 0 0 40px rgba(56, 189, 248, 0.08);
+    .glass-card {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 0 35px rgba(2, 132, 199, 0.08);
     }
 
     .glow-cyan-btn {
@@ -56,80 +56,116 @@
       background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
       box-shadow: 0 0 35px rgba(56, 189, 248, 0.7);
     }
+
+    .tab-btn.active-green {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.6);
+      color: #6ee7b7;
+    }
+
+    .tab-btn.active-amber {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(251, 191, 36, 0.6);
+      color: #fcd34d;
+    }
+
+    .tab-btn.active-purple {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: rgba(192, 132, 252, 0.6);
+      color: #d8b4fe;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col relative selection:bg-cyan-500 selection:text-white">
 
   <!-- 頂部導航 Bar -->
-  <header class="sticky top-0 z-50 boxer-glass border-b border-cyan-500/20 px-6 py-3.5">
+  <header class="sticky top-0 z-50 glass-card border-b border-cyan-500/20 px-6 py-3.5">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <a href="/portal" class="p-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-all flex items-center gap-1.5 text-xs font-bold">
           <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-          <span>回目錄總覽</span>
+          <span>總目錄</span>
         </a>
         <div>
-          <h1 class="text-base font-black text-white flex items-center gap-2">
-            真實 3D 動作捕捉：刺拳與直拳組合拳
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono-code font-bold">JAB CROSS FBX</span>
+          <h1 class="text-sm md:text-base font-black text-white flex items-center gap-2">
+            出拳動力鏈徒手評估 × 3D 動作力學
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono-code font-bold">HAOBOXING CARE</span>
           </h1>
-          <p class="text-[11px] text-gray-400">Blender 5.2 自動轉檔 × Three.js 60FPS 骨骼動力學實時播放</p>
+          <p class="text-[11px] text-gray-400 hidden sm:block">嘉豪師傅｜按摩・傳統整復推拿・徒手調理・動作發力改善</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <a href="/model-ai-lab" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">AI 實驗室</a>
-        <a href="/model-d" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">方案 D (熱力圖)</a>
-        <a href="/model-c" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">方案 C (拳擊力學)</a>
-        <a href="/model-b" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold">方案 B (七大筋膜)</a>
+        <a href="https://line.me/R/ti/p/@339qipqu?text=%E6%82%A8%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%90%91%E5%98%89%E8%B1%AA%E5%B8%AB%E5%82%85%E9%A0%90%E7%B4%84%E3%80%90%E5%87%BA%E6%8B%B3%E5%8B%95%E5%8A%9B%E9%8F%88%E5%BE%92%E6%89%8B%E8%A9%95%E4%BC%B0%E8%88%87%E8%AA%BF%E7%90%86%E3%80%91%EF%BC%81" target="_blank" class="px-3.5 py-1.5 rounded-xl glow-cyan-btn text-white text-xs font-bold flex items-center gap-1.5">
+          <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+          <span>LINE 預約評估</span>
+        </a>
       </div>
     </div>
   </header>
 
-  <!-- 主內容區 -->
-  <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- Hero 標題區 -->
+  <section class="max-w-7xl mx-auto px-4 md:px-6 pt-8 pb-4 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-xs font-mono-code mb-3">
+      <i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400 animate-pulse"></i>
+      不是單純教技術，而是找出身體卡點・恢復流暢出拳
+    </div>
+    <h2 class="text-2xl md:text-4xl font-black text-white tracking-tight leading-tight">
+      出拳卡卡、發力不順？<br class="sm:hidden" />
+      <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-300">
+        用 3D 動作力學找出身體卡點
+      </span>
+    </h2>
+    <p class="text-xs md:text-sm text-gray-300 max-w-2xl mx-auto mt-3 leading-relaxed">
+      出拳卡卡不一定是技術問題，可能是肩、胸椎、髖部、骨盆與足踝的動力鏈被卡住了。<br class="hidden md:block"/>
+      透過 3D 動作力學精準分析，結合<strong>按摩、傳統整復推拿與徒手調理</strong>，協助改善緊繃與動作品質。
+    </p>
+  </section>
 
-    <!-- 3D 視窗區 (佔 8 欄) -->
-    <div class="lg:col-span-8 boxer-glass rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden border border-cyan-500/30">
+  <!-- 主內容區 (3D 視窗 + 3大模式卡點解析) -->
+  <main class="max-w-7xl mx-auto px-4 md:px-6 py-4 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 3D 視窗區 (佔 7 欄) -->
+    <div class="lg:col-span-7 glass-card rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden border border-cyan-500/30">
       
       <!-- 頂部狀態標籤 -->
       <div class="flex justify-between items-center mb-3 z-30">
         <div class="flex items-center gap-2">
           <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono-code flex items-center gap-1">
-            <i data-lucide="activity" class="w-3 h-3 text-cyan-400 animate-pulse"></i>
-            FBX 動作骨骼已掛載 (68 Frames)
+            <i data-lucide="crosshair" class="w-3 h-3 text-cyan-400"></i>
+            雙層 ModelGroup 置中對齊
           </span>
           <span id="motion-stage-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono-code">
-            前手刺拳 (Jab) ➡️ 後手重直拳 (Cross)
+            前手刺拳 (Jab) ➡️ 後手直拳 (Cross)
           </span>
         </div>
-        <span class="text-[10px] text-gray-400 font-mono-code">Blender 5.2 Pipeline</span>
+        <span class="text-[10px] text-gray-400 font-mono-code">60FPS 骨骼動力學</span>
       </div>
 
       <!-- 3D Canvas 容器 -->
-      <div class="relative w-full h-[420px] md:h-[480px] rounded-2xl bg-[#030712] border border-slate-800 overflow-hidden flex items-center justify-center">
+      <div class="relative w-full h-[400px] md:h-[460px] rounded-2xl bg-[#030712] border border-slate-800 overflow-hidden flex items-center justify-center">
         <div id="loading-spinner" class="absolute z-40 flex flex-col items-center gap-2">
           <div class="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-[11px] text-cyan-300 font-mono-code font-bold">載入 Jab Cross 3D 動畫模型...</span>
+          <span class="text-[11px] text-cyan-300 font-mono-code font-bold">載入 3D 出拳動力鏈模型...</span>
         </div>
         <canvas id="three-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
 
         <!-- 畫面浮動視角按鈕 -->
         <div class="absolute bottom-3 right-3 z-30 flex gap-1.5">
           <button id="btn-cam-side" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">側視角 (發力力線)</button>
-          <button id="btn-cam-front" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">正視角 (打擊線)</button>
+          <button id="btn-cam-front" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">正視角 (打擊軸線)</button>
           <button id="btn-cam-reset" class="px-2.5 py-1 rounded-lg bg-slate-900/85 border border-slate-700 text-[11px] font-bold text-gray-300 hover:text-cyan-300 transition-all">重設視角</button>
         </div>
       </div>
 
       <!-- 底部播放控制器 Bar -->
-      <div class="mt-4 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+      <div class="mt-4 p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <button id="btn-play-pause" class="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-all flex items-center gap-1 text-xs font-bold">
-            <i data-lucide="pause" id="icon-play-pause" class="w-4 h-4"></i>
+          <button id="btn-play-pause" class="px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 transition-all flex items-center gap-1.5 text-xs font-bold">
+            <i data-lucide="pause" id="icon-play-pause" class="w-3.5 h-3.5"></i>
             <span id="text-play-pause">暫停</span>
           </button>
-          <button id="btn-restart" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold flex items-center gap-1">
+          <button id="btn-restart" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-semibold flex items-center gap-1.5">
             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
             <span>重播</span>
           </button>
@@ -138,60 +174,235 @@
         <!-- 播放速度切換 -->
         <div class="flex items-center gap-1.5">
           <span class="text-xs text-gray-400 font-mono-code mr-1">速度:</span>
-          <button id="btn-spd-1" class="px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 text-xs font-bold font-mono-code">1.0x</button>
-          <button id="btn-spd-05" class="px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code">0.5x (慢動)</button>
-          <button id="btn-spd-02" class="px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code">0.25x (微調)</button>
+          <button id="btn-spd-1" class="px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 text-xs font-bold font-mono-code">1.0x (原速)</button>
+          <button id="btn-spd-05" class="px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code">0.5x (慢動作)</button>
+          <button id="btn-spd-02" class="px-2.5 py-1 rounded-lg bg-slate-800 text-gray-300 hover:text-white text-xs font-bold font-mono-code">0.25x (逐格)</button>
         </div>
       </div>
 
     </div>
 
-    <!-- 右側動作力學解析專區 (佔 4 欄) -->
-    <div class="lg:col-span-4 flex flex-col gap-4">
+    <!-- 右側 3 大模式解析面板 (佔 5 欄) -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
 
-      <!-- 階段 1：刺拳 Jab 力學分析 -->
-      <div class="boxer-glass rounded-3xl p-5 border border-cyan-500/30">
+      <!-- 3 大模式切換 Tabs -->
+      <div class="grid grid-cols-3 gap-2 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+        <button id="tab-power" class="tab-btn active-green py-2 px-1 rounded-xl text-xs font-bold border transition-all text-center flex flex-col items-center gap-0.5">
+          <span>🟢 正確發力鏈</span>
+          <span class="text-[9px] opacity-75">順暢力線</span>
+        </button>
+        <button id="tab-restrict" class="tab-btn py-2 px-1 rounded-xl text-xs font-bold border border-transparent text-gray-400 hover:text-gray-200 transition-all text-center flex flex-col items-center gap-0.5">
+          <span>🟠 出拳卡點分析</span>
+          <span class="text-[9px] opacity-75">限制點檢測</span>
+        </button>
+        <button id="tab-care" class="tab-btn py-2 px-1 rounded-xl text-xs font-bold border border-transparent text-gray-400 hover:text-gray-200 transition-all text-center flex flex-col items-center gap-0.5">
+          <span>🟣 徒手調理方向</span>
+          <span class="text-[9px] opacity-75">推拿與放鬆</span>
+        </button>
+      </div>
+
+      <!-- 動態內容卡片 1：Jab 前手刺拳 -->
+      <div id="card-jab" class="glass-card rounded-3xl p-5 border border-emerald-500/30 transition-all">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono-code">PHASE 1 (Frames 1~28)</span>
-          <span class="text-xs text-emerald-400 font-bold font-mono-code">⚡ 前手刺拳 (Jab)</span>
+          <span id="badge-jab" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code">
+            PHASE 1 (Frames 1~28)
+          </span>
+          <span id="label-jab" class="text-xs text-emerald-400 font-bold font-mono-code flex items-center gap-1">
+            ⚡ 前手刺拳 (Jab)
+          </span>
         </div>
-        <h3 class="text-base font-black text-white mb-2">前手快速測距與干擾視線</h3>
-        <p class="text-xs text-gray-300 leading-relaxed">
-          前足微墊推進，前手三角肌前束與肱三頭肌瞬間彈出，肩部自然抬高護住下巴，出拳後原路快速縮回。
+        <h3 id="title-jab" class="text-base font-black text-white mb-2">肩胛順暢前引與彈性回收</h3>
+        <p id="desc-jab" class="text-xs text-gray-300 leading-relaxed">
+          前足微墊推進，肩胛順暢滑動，前手三角肌與肱三頭肌瞬間彈出，肩部自然放鬆護住下巴，出拳後原路快速縮回。
         </p>
-        <div class="mt-3 p-2.5 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-[11px] text-gray-400 font-mono-code space-y-1">
-          <div>• 出拳速度: <span class="text-cyan-300 font-bold">8.5 m/s (極速試探)</span></div>
-          <div>• 肩部代償: <span class="text-emerald-400 font-bold">0% (沉肩無聳肩)</span></div>
+        <div id="box-jab" class="mt-3 p-3 rounded-xl bg-slate-950/70 border border-emerald-500/20 text-[11px] text-gray-300 space-y-1.5">
+          <div class="flex items-start gap-1.5">
+            <span class="text-emerald-400 font-bold shrink-0">• 關鍵觀察：</span>
+            <span>肩胛骨能否順利前引？肩頸是否出現不自主聳肩代償？</span>
+          </div>
+          <div class="flex items-start gap-1.5">
+            <span class="text-cyan-300 font-bold shrink-0">• 發力指標：</span>
+            <span>出拳速度 8.5 m/s，回縮速度需大於出拳速度。</span>
+          </div>
         </div>
       </div>
 
-      <!-- 階段 2：後手直拳 Cross 爆發力學 -->
-      <div class="boxer-glass rounded-3xl p-5 border border-emerald-500/30">
+      <!-- 動態內容卡片 2：Cross 後手直拳 -->
+      <div id="card-cross" class="glass-card rounded-3xl p-5 border border-cyan-500/30 transition-all">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code">PHASE 2 (Frames 29~68)</span>
-          <span class="text-xs text-amber-400 font-bold font-mono-code">💥 後手重直拳 (Cross)</span>
+          <span id="badge-cross" class="text-xs font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono-code">
+            PHASE 2 (Frames 29~68)
+          </span>
+          <span id="label-cross" class="text-xs text-cyan-400 font-bold font-mono-code flex items-center gap-1">
+            💥 後手重直拳 (Cross)
+          </span>
         </div>
-        <h3 class="text-base font-black text-white mb-2">後足蹬地 ➡️ 骨盆螺旋 ➡️ 鞭打重擊</h3>
-        <p class="text-xs text-gray-300 leading-relaxed">
-          後腳跟 45° 旋轉蹬地傳導反作用力，前鋸肌與胸大肌產生螺旋扭矩，拳峰在接觸目標瞬間完成旋腕鎖定。
+        <h3 id="title-cross" class="text-base font-black text-white mb-2">後足蹬地 ➡️ 骨盆螺旋 ➡️ 核心傳導</h3>
+        <p id="desc-cross" class="text-xs text-gray-300 leading-relaxed">
+          後腳跟 45° 旋轉蹬地傳導地面反作用力，前鋸肌與胸大肌產生螺旋扭矩，拳峰在接觸目標瞬間完成旋腕鎖定。
         </p>
-        <div class="mt-3 p-2.5 rounded-xl bg-slate-950/70 border border-emerald-500/20 text-[11px] text-gray-400 font-mono-code space-y-1">
-          <div>• 地面反作用力: <span class="text-emerald-300 font-bold">420 N (100% 傳導)</span></div>
-          <div>• 髖部旋轉角速度: <span class="text-cyan-300 font-bold">720 °/s (核心爆發)</span></div>
+        <div id="box-cross" class="mt-3 p-3 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-[11px] text-gray-300 space-y-1.5">
+          <div class="flex items-start gap-1.5">
+            <span class="text-cyan-300 font-bold shrink-0">• 關鍵觀察：</span>
+            <span>髖關節旋轉是否被卡住？腰椎是否代替骨盆過度代償扭轉？</span>
+          </div>
+          <div class="flex items-start gap-1.5">
+            <span class="text-amber-300 font-bold shrink-0">• 發力指標：</span>
+            <span>地面反作用力 420 N，髖部旋轉角速度 720 °/s。</span>
+          </div>
         </div>
       </div>
 
       <!-- 預約諮詢按鈕 -->
-      <a href="https://line.me/R/ti/p/@339qipqu?text=%E6%82%A8%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%90%91%E5%98%89%E8%B1%AA%E5%B8%AB%E5%82%85%E8%AB%AE%E8%A9%A2%E3%80%903D%20%E6%8B%B3%E6%93%8A%E5%8B%95%E5%8A%9B%E9%8F%88%E8%88%87%E8%82%8C%E7%AD%8B%E8%86%9C%E8%AA%BF%E7%90%86%E3%80%91%EF%BC%81" target="_blank" class="p-4 rounded-2xl glow-cyan-btn text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all">
+      <a href="https://line.me/R/ti/p/@339qipqu?text=%E6%82%A8%E5%A5%BD%EF%BC%8C%E6%88%91%E6%89%93%E6%8B%B3%E6%99%82%E6%84%9F%E8%A6%BA%E5%87%BA%E6%8B%B3%E5%8D%A1%E5%8D%A1%E7%9A%84%EF%BC%8C%E6%83%B3%E5%90%91%E5%98%89%E8%B1%AA%E5%B8%AB%E5%82%85%E9%A0%90%E7%B4%84%E3%80%90%E5%87%BA%E6%8B%B3%E5%8B%95%E5%8A%9B%E9%8F%88%E5%BE%92%E6%89%8B%E8%A9%95%E4%BC%B0%E8%88%87%E8%AA%BF%E7%90%86%E3%80%91%EF%BC%81" target="_blank" class="p-4 rounded-2xl glow-cyan-btn text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all">
         <i data-lucide="message-circle" class="w-4 h-4"></i>
-        <span>加 LINE 諮詢拳擊動作力學評估</span>
+        <span>加 LINE 預約出拳動力鏈評估</span>
       </a>
 
     </div>
 
   </main>
 
-  <!-- 核心腳本 -->
+  <!-- 常見問題共鳴區 (Pain Point Checklist) -->
+  <section class="max-w-7xl mx-auto px-4 md:px-6 py-8 w-full">
+    <div class="glass-card rounded-3xl p-6 md:p-8 border border-slate-800">
+      <div class="flex items-center gap-2 text-amber-400 text-xs font-mono-code mb-2">
+        <i data-lucide="alert-circle" class="w-4 h-4"></i>
+        身體限制點檢測
+      </div>
+      <h3 class="text-lg md:text-xl font-black text-white mb-4">你出拳時是否有這些狀況？</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+            <i data-lucide="frown" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">出拳只覺得肩膀很累</div>
+            <p class="text-[11px] text-gray-400 mt-0.5">肩頸與上斜方肌過度代償，肩胛骨無法順暢前引滑動。</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">後手直拳打不出穿透力</div>
+            <p class="text-[11px] text-gray-400 mt-0.5">髖關節旋轉角度受限，下肢蹬地力量在中途斷掉。</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">髖部轉不開、腰容易緊</div>
+            <p class="text-[11px] text-gray-400 mt-0.5">骨盆旋轉節奏不對，胸腰交界僵硬，導致腰椎被迫代償扭轉。</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+            <i data-lucide="zap-off" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">刺拳打出去收不回來</div>
+            <p class="text-[11px] text-gray-400 mt-0.5">胸小肌過度緊繃，前鋸肌啟動不足，出拳像推出去而非彈回。</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+            <i data-lucide="move-right" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">出拳時重心容易前衝</div>
+            <p class="text-[11px] text-gray-400 mt-0.5">後足踝推進角度不足，核心旋轉失衡，打擊後失去平衡防守位。</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 shrink-0">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">教練說只用手打卻不知道怎麼改</div>
+            <p class="text-[11px] text-gray-400 mt-0.5">透過徒手調理鬆解身體限制點，讓神經肌肉重新找回發力感覺。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 步評估與調理流程 (Service Flow) -->
+  <section class="max-w-7xl mx-auto px-4 md:px-6 pb-12 w-full">
+    <div class="glass-card rounded-3xl p-6 md:p-8 border border-slate-800">
+      <div class="text-center max-w-xl mx-auto mb-6">
+        <div class="text-cyan-400 text-xs font-mono-code mb-1">HAOBOXING PROTOCOL</div>
+        <h3 class="text-lg md:text-xl font-black text-white">出拳動力鏈徒手評估 5 步流程</h3>
+        <p class="text-xs text-gray-400 mt-1">從動態觀察到徒手調理，系統化協助身體恢復自然流暢的發力</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
+          <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-300 font-mono-code font-bold flex items-center justify-center mx-auto mb-2 text-xs">01</div>
+          <div class="text-xs font-bold text-white">動作觀察</div>
+          <p class="text-[11px] text-gray-400 mt-1">觀察 Jab、Cross 出拳時肩、胸、髖、骨盆與重心的位移路徑。</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
+          <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-300 font-mono-code font-bold flex items-center justify-center mx-auto mb-2 text-xs">02</div>
+          <div class="text-xs font-bold text-white">徒手評估</div>
+          <p class="text-[11px] text-gray-400 mt-1">檢測肩胛骨滑動度、胸椎旋轉度、髖關節活動度與肌筋膜張力。</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
+          <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-300 font-mono-code font-bold flex items-center justify-center mx-auto mb-2 text-xs">03</div>
+          <div class="text-xs font-bold text-white">徒手調理</div>
+          <p class="text-[11px] text-gray-400 mt-1">依據卡點進行按摩、傳統整復推拿、深層筋膜放鬆與關節活動調整。</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
+          <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-300 font-mono-code font-bold flex items-center justify-center mx-auto mb-2 text-xs">04</div>
+          <div class="text-xs font-bold text-white">動作重測</div>
+          <p class="text-[11px] text-gray-400 mt-1">調理後立即再次出拳，體感對比發力是否更連貫、出拳是否更順。</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center">
+          <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-300 font-mono-code font-bold flex items-center justify-center mx-auto mb-2 text-xs">05</div>
+          <div class="text-xs font-bold text-white">發力 Cue 引導</div>
+          <p class="text-[11px] text-gray-400 mt-1">提供專屬日常活動度與發力意識提醒，讓身體牢記順暢動作節奏。</p>
+        </div>
+      </div>
+
+      <!-- 底部橫幅預約 -->
+      <div class="mt-6 p-4 rounded-2xl bg-gradient-to-r from-cyan-950/80 via-slate-900 to-indigo-950/80 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="text-sm font-bold text-white">不知道自己的出拳發力卡在哪裡？</div>
+          <div class="text-xs text-gray-300 mt-0.5">加 LINE 傳一段 5~10 秒出拳影片，嘉豪師傅先為你初步分析動力鏈卡點！</div>
+        </div>
+        <a href="https://line.me/R/ti/p/@339qipqu?text=%E6%82%A8%E5%A5%BD%EF%BC%8C%E6%88%91%E6%83%B3%E5%82%B3%E4%B8%80%E6%AE%B5%E5%87%BA%E6%8B%B3%E5%BD%B1%E7%89%87%E8%AB%8B%E5%98%89%E8%B1%AA%E5%B8%AB%E5%82%85%E5%88%9D%E6%AD%A5%E5%88%86%E6%9E%90%E5%8B%95%E5%8A%9B%E9%8F%88%E5%8D%A1%E9%BB%9E%EF%BC%81" target="_blank" class="px-5 py-2.5 rounded-xl glow-cyan-btn text-white text-xs font-bold flex items-center gap-1.5 shrink-0">
+          <i data-lucide="video" class="w-4 h-4"></i>
+          <span>傳影片評估卡點</span>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 頁腳 -->
+  <footer class="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+      <div>© 2026 HAOBOXING 嘉豪師傅｜出拳動力鏈徒手調理評估</div>
+      <div class="text-[11px] text-gray-400">
+        本服務旨在透過動作力學觀察與傳統整復推拿、徒手調理協助改善動作品質與活動度，非屬醫療醫療行為。
+      </div>
+    </div>
+  </footer>
+
+  <!-- 核心腳本 (3D 引擎 + 3大模式動態切換) -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -199,14 +410,157 @@
 
     lucide.createIcons();
 
+    // ----------------------------------------------------
+    // 【3 大模式資料庫 (Power Chain / Restrictions / Manual Care)】
+    // ----------------------------------------------------
+    const contentModes = {
+      power: {
+        themeColor: 0x0284c7, // 科技藍
+        emissiveColor: 0x0369a1,
+        badgeStyle: "active-green",
+        jab: {
+          badge: "PHASE 1 (Frames 1~28)",
+          label: "⚡ 前手刺拳 (Jab)",
+          title: "肩胛順暢前引與彈性回收",
+          desc: "前足微墊推進，肩胛順暢滑動，前手三角肌與肱三頭肌瞬間彈出，肩部自然放鬆護住下巴，出拳後原路快速縮回。",
+          points: [
+            { label: "關鍵觀察", text: "肩胛骨能否順利前引？肩頸是否出現不自主聳肩代償？", color: "text-emerald-400" },
+            { label: "發力指標", text: "出拳速度 8.5 m/s，回縮速度需大於出拳速度。", color: "text-cyan-300" }
+          ]
+        },
+        cross: {
+          badge: "PHASE 2 (Frames 29~68)",
+          label: "💥 後手重直拳 (Cross)",
+          title: "後足蹬地 ➡️ 骨盆螺旋 ➡️ 核心傳導",
+          desc: "後腳跟 45° 旋轉蹬地傳導地面反作用力，前鋸肌與胸大肌產生螺旋扭矩，拳峰在接觸目標瞬間完成旋腕鎖定。",
+          points: [
+            { label: "關鍵觀察", text: "髖關節旋轉是否被卡住？腰椎是否代替骨盆過度代償扭轉？", color: "text-cyan-300" },
+            { label: "發力指標", text: "地面反作用力 420 N，髖部旋轉角速度 720 °/s。", color: "text-amber-300" }
+          ]
+        }
+      },
+      restrict: {
+        themeColor: 0xd97706, // 限制橘色
+        emissiveColor: 0xb45309,
+        badgeStyle: "active-amber",
+        jab: {
+          badge: "卡點分析 01 (刺拳限制)",
+          label: "⚠️ 肩頸緊繃・肩胛滑動受限",
+          title: "手臂硬推・出拳短・打完肩頸酸",
+          desc: "上斜方肌、提肩胛肌與胸小肌張力過高，限制了肩胛前引滑動，導致刺拳只能靠手臂推出，速度慢且距離變短。",
+          points: [
+            { label: "身體感受", text: "出拳像推出去不是彈出去、打沙包肩膀容易發酸、下巴露出來。", color: "text-amber-400" },
+            { label: "潛在代償", text: "上斜方肌過度收縮聳肩，壓迫頸椎神經通道。", color: "text-red-400" }
+          ]
+        },
+        cross: {
+          badge: "卡點分析 02 (直拳限制)",
+          label: "⚠️ 髖轉不開・胸椎旋轉僵硬",
+          title: "打不出穿透力・腰部代償緊繃",
+          desc: "髖屈肌、臀肌張力不平衡或胸椎活動度受限，導致下肢反作用力無法完整傳導至上肢，身體只能用腰椎硬扭代償。",
+          points: [
+            { label: "身體感受", text: "重拳打起來軟軟的沒有穿透力、打完腰部特別緊繃甚至微痛。", color: "text-amber-400" },
+            { label: "潛在代償", text: "腰椎承受不正常的旋轉剪力，重心前衝失去平衡。", color: "text-red-400" }
+          ]
+        }
+      },
+      care: {
+        themeColor: 0x9333ea, // 調理紫
+        emissiveColor: 0x7e22ce,
+        badgeStyle: "active-purple",
+        jab: {
+          badge: "調理方向 01 (刺拳放鬆)",
+          label: "🟣 肩胛周邊放鬆・胸小肌鬆解",
+          title: "恢復肩胛滑動度與前鋸肌彈性",
+          desc: "透過徒手調理針對胸小肌、上斜方肌與提肩胛肌進行深層放鬆，重啟前鋸肌滑動鏈，讓刺拳恢復極速彈出彈回。",
+          points: [
+            { label: "調理重點", text: "胸小肌附著點鬆解、肩胛骨內側緣菱形肌調理、頸肩減壓。", color: "text-purple-300" },
+            { label: "預期改善", text: "出拳距離自然延伸 5~10 公分，聳肩代償顯著降低。", color: "text-emerald-300" }
+          ]
+        },
+        cross: {
+          badge: "調理方向 02 (直拳調整)",
+          label: "🟣 髖周筋膜鬆動・胸腰節奏重建",
+          title: "釋放髖旋轉限制・骨盆連貫發力",
+          desc: "透過傳統整復推拿與筋膜調理，放鬆緊繃的髖屈肌、闊筋膜張肌與腰方肌，鬆動胸椎旋轉節奏，恢復下肢到軀幹力量連貫。",
+          points: [
+            { label: "調理重點", text: "髂腰肌與臀肌張力平衡、胸椎旋轉鬆動、後踝推進弧度調整。", color: "text-purple-300" },
+            { label: "預期改善", text: "後手直拳穿透力大幅提升，打完腰部不再僵硬代償。", color: "text-cyan-300" }
+          ]
+        }
+      }
+    };
+
+    // UI 切換更新函式
+    let currentModeKey = 'power';
+    let boxerMaterial = null;
+
+    function switchMode(modeKey) {
+      currentModeKey = modeKey;
+      const data = contentModes[modeKey];
+
+      // 更新 Tab 樣式
+      ['tab-power', 'tab-restrict', 'tab-care'].forEach(id => {
+        const btn = document.getElementById(id);
+        btn.className = "tab-btn py-2 px-1 rounded-xl text-xs font-bold border border-transparent text-gray-400 hover:text-gray-200 transition-all text-center flex flex-col items-center gap-0.5";
+      });
+      const activeBtn = document.getElementById(`tab-${modeKey}`);
+      activeBtn.className = `tab-btn ${data.badgeStyle} py-2 px-1 rounded-xl text-xs font-bold border transition-all text-center flex flex-col items-center gap-0.5`;
+
+      // 更新 Jab 卡片文字
+      document.getElementById('badge-jab').innerText = data.jab.badge;
+      document.getElementById('label-jab').innerText = data.jab.label;
+      document.getElementById('title-jab').innerText = data.jab.title;
+      document.getElementById('desc-jab').innerText = data.jab.desc;
+      document.getElementById('box-jab').innerHTML = data.jab.points.map(p => `
+        <div class="flex items-start gap-1.5">
+          <span class="${p.color} font-bold shrink-0">• ${p.label}：</span>
+          <span>${p.text}</span>
+        </div>
+      `).join('');
+
+      // 更新 Cross 卡片文字
+      document.getElementById('badge-cross').innerText = data.cross.badge;
+      document.getElementById('label-cross').innerText = data.cross.label;
+      document.getElementById('title-cross').innerText = data.cross.title;
+      document.getElementById('desc-cross').innerText = data.cross.desc;
+      document.getElementById('box-cross').innerHTML = data.cross.points.map(p => `
+        <div class="flex items-start gap-1.5">
+          <span class="${p.color} font-bold shrink-0">• ${p.label}：</span>
+          <span>${p.text}</span>
+        </div>
+      `).join('');
+
+      // 同步切換 3D 模型發光與質感色彩
+      if (boxerMaterial) {
+        gsap.to(boxerMaterial.color, {
+          r: ((data.themeColor >> 16) & 255) / 255,
+          g: ((data.themeColor >> 8) & 255) / 255,
+          b: (data.themeColor & 255) / 255,
+          duration: 0.6
+        });
+        gsap.to(boxerMaterial.emissive, {
+          r: ((data.emissiveColor >> 16) & 255) / 255,
+          g: ((data.emissiveColor >> 8) & 255) / 255,
+          b: (data.emissiveColor & 255) / 255,
+          duration: 0.6
+        });
+      }
+    }
+
+    document.getElementById('tab-power').addEventListener('click', () => switchMode('power'));
+    document.getElementById('tab-restrict').addEventListener('click', () => switchMode('restrict'));
+    document.getElementById('tab-care').addEventListener('click', () => switchMode('care'));
+
+    // ----------------------------------------------------
+    // 【Three.js 3D 動作引擎與自動置中系統】
+    // ----------------------------------------------------
     const canvas = document.getElementById('three-canvas');
     const spinner = document.getElementById('loading-spinner');
 
-    // 1. 場景配置
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020617);
 
-    // 2. 攝影機與渲染器
     const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
     camera.position.set(0, 1.0, 3.5);
 
@@ -221,7 +575,7 @@
     controls.maxDistance = 15.0;
     controls.minDistance = 0.5;
 
-    // 3. 燈光系統
+    // 燈光系統
     const ambLight = new THREE.AmbientLight(0x334155, 2.0);
     scene.add(ambLight);
 
@@ -238,7 +592,7 @@
     rimLight.position.set(0, 4, -4);
     scene.add(rimLight);
 
-    // 4. 地面反光網格
+    // 地面反光網格
     const grid = new THREE.GridHelper(10, 20, 0x0284c7, 0x1e293b);
     grid.position.y = 0;
     scene.add(grid);
@@ -248,96 +602,75 @@
     let isPlaying = true;
     const clock = new THREE.Clock();
 
-    // 儲存全局自適應相機參數供按鈕與 resize 使用
     let charTargetY = 0.9;
     let charCameraZ = 3.2;
-    let charSize = new THREE.Vector3(1, 1.8, 1);
 
-    // 【輔助函式 1】：同時兼顧水平與垂直 FOV 的相機最佳距離計算
+    // 計算最佳相機距離 (同時兼顧 Canvas 寬高比)
     function calculateCameraDistance(cam, size, fitOffset = 1.75) {
       const fov = THREE.MathUtils.degToRad(cam.fov);
       const aspect = cam.aspect;
-
       const height = Math.max(size.y, 0.001);
       const width = Math.max(size.x, size.z, 0.001);
-
       const distanceForHeight = height / 2 / Math.tan(fov / 2);
-
       const horizontalFov = 2 * Math.atan(Math.tan(fov / 2) * aspect);
       const distanceForWidth = width / 2 / Math.tan(horizontalFov / 2);
-
       return Math.max(distanceForHeight, distanceForWidth) * fitOffset;
     }
 
-    // 【輔助函式 2】：只針對根骨骼 (Hips/Root) 鎖定 X/Z 平移，絕不破壞手臂與身軀動畫
+    // 鎖定 Root Bone (Hips/Root) X/Z 位移
     function lockRootMotionXZ(clip) {
-      const rootNames = [
-        'Hips',
-        'mixamorigHips',
-        'mixamorig:Hips',
-        'Armature',
-        'Root',
-        'root'
-      ];
-
+      const rootNames = ['Hips', 'mixamorigHips', 'mixamorig:Hips', 'Armature', 'Root', 'root'];
       clip.tracks.forEach((track) => {
         if (!track.name.endsWith('.position')) return;
-
         const isRootTrack = rootNames.some((name) => track.name.includes(name));
         if (!isRootTrack) return;
-
         const vals = track.values;
         if (!vals || vals.length < 3) return;
-
         const firstX = vals[0];
         const firstZ = vals[2];
-
         for (let i = 0; i < vals.length; i += 3) {
-          vals[i] = firstX;     // 鎖定 X 軸平移
-          vals[i + 2] = firstZ; // 鎖定 Z 軸平移
+          vals[i] = firstX;
+          vals[i + 2] = firstZ;
         }
-
-        console.log('✅ 已精準鎖定 Root Bone X/Z:', track.name);
       });
     }
 
-    // 5. 載入 3D 動作模型 (採用 ModelGroup 雙層隔離架構)
+    // 載入 3D 出拳模型
     const gltfLoader = new GLTFLoader();
     gltfLoader.load(
       '/models/jab_cross.glb',
       (gltf) => {
         const model = gltf.scene;
 
-        // 外層 Group 代表角色世界中心
         const modelGroup = new THREE.Group();
         modelGroup.name = 'CharacterCenterGroup';
         scene.add(modelGroup);
 
-        // 材質調整 (深藍金屬光澤 + 發光邊緣)
+        boxerMaterial = new THREE.MeshStandardMaterial({
+          color: 0x0284c7,
+          metalness: 0.7,
+          roughness: 0.25,
+          emissive: 0x0369a1,
+          emissiveIntensity: 0.3
+        });
+
         model.traverse((child) => {
           if (child.isMesh) {
             if (child.name === 'Icosphere') {
               child.visible = false;
               return;
             }
-            child.material = new THREE.MeshStandardMaterial({
-              color: 0x0284c7,
-              metalness: 0.7,
-              roughness: 0.25,
-              emissive: 0x0369a1,
-              emissiveIntensity: 0.3
-            });
+            child.material = boxerMaterial;
             child.castShadow = true;
             child.receiveShadow = true;
           }
         });
 
-        // 加入 group 並強制更新矩陣
         modelGroup.add(model);
         model.updateMatrixWorld(true);
         modelGroup.updateMatrixWorld(true);
 
-        // 1. 初次計算 Bounding Box：本體 X/Z 置中，Y 貼地
+        // 初次置中與貼地
         let box = new THREE.Box3().setFromObject(model);
         let center = box.getCenter(new THREE.Vector3());
         let size = box.getSize(new THREE.Vector3());
@@ -346,22 +679,17 @@
         model.position.z -= center.z;
         model.position.y -= box.min.y;
 
-        // 2. 再次更新世界矩陣，取得校正後的世界空間尺寸
+        // 再次更新取得修正後尺寸
         model.updateMatrixWorld(true);
         modelGroup.updateMatrixWorld(true);
 
         box = new THREE.Box3().setFromObject(modelGroup);
         center = box.getCenter(new THREE.Vector3());
         size = box.getSize(new THREE.Vector3());
-        charSize.copy(size);
 
-        // 3. 對焦高度：胸腹中心 (52%)
         charTargetY = size.y * 0.52;
-
-        // 4. 動態計算最佳相機距離 (同時考慮 canvas 寬度與高度)
         charCameraZ = calculateCameraDistance(camera, size, 1.8);
 
-        // 5. 設定相機與控制器
         camera.position.set(0, charTargetY, charCameraZ);
         camera.lookAt(0, charTargetY, 0);
 
@@ -374,11 +702,10 @@
         controls.maxDistance = charCameraZ * 4.0;
         controls.update();
 
-        // 6. 播放動畫 (只鎖定 Root Motion)
+        // 播放動畫
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           const clip = gltf.animations[0];
-
           lockRootMotionXZ(clip);
 
           actionClip = mixer.clipAction(clip);
@@ -389,8 +716,6 @@
           if (badge) {
             badge.innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
           }
-        } else {
-          document.getElementById('motion-stage-badge').innerText = "未檢測到內嵌動畫";
         }
 
         spinner.style.display = 'none';
@@ -407,7 +732,7 @@
       }
     );
 
-    // 6. 控制器按鈕事件
+    // 控制器按鈕事件
     const btnPlayPause = document.getElementById('btn-play-pause');
     const iconPlayPause = document.getElementById('icon-play-pause');
     const textPlayPause = document.getElementById('text-play-pause');
@@ -451,7 +776,7 @@
     document.getElementById('btn-spd-05').addEventListener('click', () => setSpeed(0.5, 'btn-spd-05'));
     document.getElementById('btn-spd-02').addEventListener('click', () => setSpeed(0.25, 'btn-spd-02'));
 
-    // 7. 視角切換 (純側視角、正視角、透視角，並在動畫中即時更新 controls)
+    // 視角切換
     document.getElementById('btn-cam-side')?.addEventListener('click', () => {
       gsap.to(camera.position, {
         x: charCameraZ,
@@ -506,7 +831,7 @@
       });
     });
 
-    // 8. 動畫循環
+    // 動畫循環
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
@@ -516,14 +841,12 @@
     }
     animate();
 
-    // 9. 自適應視窗縮放
+    // 視窗 Resize
     window.addEventListener('resize', () => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     });
