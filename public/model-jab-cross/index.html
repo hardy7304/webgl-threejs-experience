@@ -252,7 +252,7 @@
         // 用 Group 包裹修正 Mixamo Z-up → Three.js Y-up
         const wrapper = new THREE.Group();
         wrapper.rotation.x = -Math.PI / 2;  // 讓人體站立
-        wrapper.rotation.y = Math.PI;        // 轉 180° 面向相機
+        wrapper.rotation.z = Math.PI;        // 轉 180° 面向相機（X旋轉後Z軸=垂直軸）
         wrapper.add(model);
 
         // 計算尺寸並縮放
