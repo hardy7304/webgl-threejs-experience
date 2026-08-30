@@ -202,11 +202,13 @@
     const canvas = document.getElementById('three-canvas');
     const spinner = document.getElementById('loading-spinner');
 
+    // 1. 場景配置
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020617);
 
+    // 2. 攝影機與渲染器
     const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-    camera.position.set(0, 1.0, 5.5);
+    camera.position.set(0, 1.0, 3.5);
 
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
@@ -216,25 +218,29 @@
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxDistance = 10.0;
-    controls.minDistance = 1.0;
-    controls.target.set(0, 0.9, 0);
+    controls.maxDistance = 15.0;
+    controls.minDistance = 0.5;
 
-    // 燈光
-    const ambLight = new THREE.AmbientLight(0x1e293b, 1.5);
+    // 3. 燈光系統
+    const ambLight = new THREE.AmbientLight(0x334155, 2.0);
     scene.add(ambLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffedd5, 2.0);
-    keyLight.position.set(3, 5, 4);
+    const keyLight = new THREE.DirectionalLight(0xffedd5, 2.5);
+    keyLight.position.set(4, 6, 5);
+    keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 2.5);
-    rimLight.position.set(-4, 2, -3);
+    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.0);
+    fillLight.position.set(-4, 3, -2);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 3.0);
+    rimLight.position.set(0, 4, -4);
     scene.add(rimLight);
 
-    // 地面反光網格
+    // 4. 地面反光網格
     const grid = new THREE.GridHelper(10, 20, 0x0284c7, 0x1e293b);
-    grid.position.y = -0.01;
+    grid.position.y = 0;
     scene.add(grid);
 
     let mixer = null;
@@ -242,54 +248,92 @@
     let isPlaying = true;
     const clock = new THREE.Clock();
 
-    // 載入 Jab Cross GLB (Mixamo With Skin)
+    // 儲存全局自適應相機參數供按鈕切換使用
+    let charTargetY = 0.9;
+    let charCameraZ = 3.2;
+
+    // 5. 載入 3D 動作模型並自動置中 + 鏡頭對位
     const gltfLoader = new GLTFLoader();
     gltfLoader.load(
       '/models/jab_cross.glb',
       (gltf) => {
         const model = gltf.scene;
-        
-        // 用 Group 包裹修正 Mixamo Z-up → Three.js Y-up
-        const wrapper = new THREE.Group();
-        wrapper.rotation.x = -Math.PI / 2;  // 讓人體站立
-        wrapper.rotation.z = Math.PI;        // 轉 180° 面向相機（X旋轉後Z軸=垂直軸）
-        wrapper.add(model);
 
-        // 計算尺寸並縮放
-        const box = new THREE.Box3().setFromObject(model);
-        const size = box.getSize(new THREE.Vector3());
-        const tallest = Math.max(size.x, size.y, size.z);
-        const scale = 1.8 / (tallest || 1);
-        wrapper.scale.set(scale, scale, scale);
-        wrapper.position.set(0, 0, 0);
-        scene.add(wrapper);
-
-        // 計算世界空間 bbox，讓腳底精準踩在格線 y=0
-        const worldBox = new THREE.Box3().setFromObject(wrapper);
-        wrapper.position.y -= worldBox.min.y;
-
-        // 材質調整
+        // 材質調整 (深藍金屬光澤 + 發光邊緣)
         model.traverse((child) => {
           if (child.isMesh) {
+            // 隱藏多餘的幾何物體
+            if (child.name === 'Icosphere') {
+              child.visible = false;
+              return;
+            }
             child.material = new THREE.MeshStandardMaterial({
               color: 0x0284c7,
-              metalness: 0.75,
+              metalness: 0.7,
               roughness: 0.25,
               emissive: 0x0369a1,
-              emissiveIntensity: 0.35
+              emissiveIntensity: 0.3
             });
             child.castShadow = true;
             child.receiveShadow = true;
           }
         });
 
-        // 播放動畫 — AnimationMixer 綁定 model 本身，不受 wrapper 旋轉影響
+        // ----------------------------------------------------
+        // 【核心算法】：Box3 自動計算 Bounding Box、置中與鏡頭對準
+        // ----------------------------------------------------
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+
+        // 1. 將模型在 X/Z 軸居中，腳底貼齊世界座標 y=0
+        model.position.x -= center.x;
+        model.position.z -= center.z;
+        model.position.y -= box.min.y;
+
+        scene.add(model);
+
+        // 2. 根據模型高度與寬度，利用 FOV 自動計算最佳相機距離
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fovRad = camera.fov * (Math.PI / 180);
+        let cameraDist = Math.abs(maxDim / 2 / Math.tan(fovRad / 2));
+        cameraDist *= 1.45; // 加上 1.45x 安全邊界確保全身完整入鏡
+
+        charTargetY = size.y * 0.52; // 聚焦在角色胸口/腹部中心
+        charCameraZ = cameraDist;
+
+        // 3. 設定鏡頭位置與視角中心
+        camera.position.set(0, charTargetY, charCameraZ);
+        camera.lookAt(0, charTargetY, 0);
+
+        // 4. 更新 OrbitControls 旋轉中心為角色身體中心
+        controls.target.set(0, charTargetY, 0);
+        controls.update();
+
+        // ----------------------------------------------------
+        // 【Root Motion 鎖定】：防止出拳骨骼位移跑出畫面
+        // ----------------------------------------------------
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           const clip = gltf.animations[0];
+
+          // 鎖定 Root Bone (Hips) 的 X/Z 平移，保持原地出拳不飄移
+          clip.tracks.forEach((track) => {
+            if (track.name.endsWith('.position')) {
+              const vals = track.values;
+              const firstX = vals[0];
+              const firstZ = vals[2];
+              for (let i = 0; i < vals.length; i += 3) {
+                vals[i] = firstX;     // 鎖定 X 軸平移
+                vals[i + 2] = firstZ; // 鎖定 Z 軸平移
+              }
+            }
+          });
+
           actionClip = mixer.clipAction(clip);
           actionClip.setLoop(THREE.LoopRepeat);
           actionClip.play();
+
           document.getElementById('motion-stage-badge').innerText = `動作已載入：${clip.name} (${clip.duration.toFixed(2)}s)`;
         } else {
           document.getElementById('motion-stage-badge').innerText = "未檢測到內嵌動畫";
@@ -309,7 +353,7 @@
       }
     );
 
-    // 控制器按鈕事件
+    // 6. 控制器按鈕事件
     const btnPlayPause = document.getElementById('btn-play-pause');
     const iconPlayPause = document.getElementById('icon-play-pause');
     const textPlayPause = document.getElementById('text-play-pause');
@@ -353,21 +397,21 @@
     document.getElementById('btn-spd-05').addEventListener('click', () => setSpeed(0.5, 'btn-spd-05'));
     document.getElementById('btn-spd-02').addEventListener('click', () => setSpeed(0.25, 'btn-spd-02'));
 
-    // 視角切換
+    // 7. 視角切換 (自動適配相機距離)
     document.getElementById('btn-cam-side').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 3.5, y: 1.1, z: 0.5, duration: 1.2, ease: 'power2.out' });
-      gsap.to(controls.target, { x: 0, y: 0.9, z: 0, duration: 1.2, ease: 'power2.out' });
+      gsap.to(camera.position, { x: charCameraZ * 0.95, y: charTargetY + 0.1, z: 0.4, duration: 1.0, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: charTargetY, z: 0, duration: 1.0, ease: 'power2.out' });
     });
     document.getElementById('btn-cam-front').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 0, y: 1.1, z: 4.2, duration: 1.2, ease: 'power2.out' });
-      gsap.to(controls.target, { x: 0, y: 0.9, z: 0, duration: 1.2, ease: 'power2.out' });
+      gsap.to(camera.position, { x: 0, y: charTargetY, z: charCameraZ, duration: 1.0, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: charTargetY, z: 0, duration: 1.0, ease: 'power2.out' });
     });
     document.getElementById('btn-cam-reset').addEventListener('click', () => {
-      gsap.to(camera.position, { x: 1.8, y: 1.4, z: 3.8, duration: 1.2, ease: 'power2.out' });
-      gsap.to(controls.target, { x: 0, y: 0.9, z: 0, duration: 1.2, ease: 'power2.out' });
+      gsap.to(camera.position, { x: charCameraZ * 0.4, y: charTargetY + 0.25, z: charCameraZ * 0.9, duration: 1.0, ease: 'power2.out' });
+      gsap.to(controls.target, { x: 0, y: charTargetY, z: 0, duration: 1.0, ease: 'power2.out' });
     });
 
-    // 動畫循環
+    // 8. 動畫循環
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
